@@ -7,7 +7,8 @@ const { MongoClient } = require('mongodb');
 const { ObjectId } = require('mongodb');
 
 // the mongodb server URL
-const dbURL = 'mongodb+srv://test:0gcb1NPERFKJYTZj@cluster0.r0pf1cv.mongodb.net/LectureExample?retryWrites=true&w=majority';
+const dbURL = ``;
+    // 'mongodb+srv://test:0gcb1NPERFKJYTZj@cluster0.r0pf1cv.mongodb.net/LectureExample?retryWrites=true&w=majority';
 
 // connection to the db
 const connect = async () => {
@@ -28,17 +29,17 @@ const connect = async () => {
 // CREATE a new student
 // takes a db connector and a student object
 // and add the user to the DB
-const addStudent = (db, newStudent) => {
+const addUser = (db, newUser) => {
   // callback version
-  db.collection('students').insertOne(
-    newStudent,
+  db.collection('users').insertOne(
+    newUser,
     (err, result) => {
       // if there was an error
       if (err) {
         console.log(`error: ${err.message}`);       
       }
       // print the id of the student
-      console.log(`New student created with id: ${result.insertedId}`);
+      console.log(`New user created with id: ${result.insertedId}`);
       // return the result
       return result.insertedId;
     },
@@ -47,11 +48,11 @@ const addStudent = (db, newStudent) => {
 
 // READ all students
 // await/async syntax
-const getAllStudents = async (db) => {
+const getAllUsers = async (db) => {
   try {
-    const result = await db.collection('students').find({}).toArray();
+    const result = await db.collection('users').find({}).toArray();
     // print the results
-    console.log(`Students: ${JSON.stringify(result)}`);
+    console.log(`Users: ${JSON.stringify(result)}`);
     return result;
   } catch (err) {
     console.log(`error: ${err.message}`);
@@ -59,23 +60,24 @@ const getAllStudents = async (db) => {
 };
 
 // READ a student given their ID
-const getAStudent = async (db, studentID) => {
+const getAUser = async (db, studentID) => {
   try {
-    const result = await db.collection('students').findOne({ _id: ObjectId(studentID) });
+    const result = await db.collection('users').findOne({ _id: studentID });
     // print the result
-    console.log(`Student: ${JSON.stringify(result)}`);
+    console.log(`User: ${JSON.stringify(result)}`);
     return result;
   } catch (err) {
     console.log(`error: ${err.message}`);
   }
 };
 
-// UPDATE a student given their ID
-const updateStudent = async (db, studentID, newMajor) => {
+// UPDATE a user
+const updateUser = async (db, studentID, newUser) => {
   try {
-    const result = await db.collection('students').updateOne(
-      { _id: ObjectId(studentID) },
+    const result = await db.collection('users').updateOne(
+      { _id: studentID },
       { $set: { major: newMajor } },
+        {},
     );
       // print the result
     console.log(`Student: ${JSON.stringify(result)}`);
