@@ -7,7 +7,6 @@ const comments = fs.readFileSync('comments.txt', 'utf-8').split(/\r?\n/);
 const dbUrl = process.argv[2];
 
 
-
 const allUsersNum = 15;
 const perComment = 5;
 
@@ -59,10 +58,10 @@ const getRandomArray = (array) => {
     return array[Math.floor(Math.random() * array.length)];
 }
 
-const getComment = (postUsername, postId) => {
+const getComment = (postUserId, postId) => {
     let comment = {
         id: globalCommentId++,
-        username: getRandomArray(allUsernames),
+        userId: getRandomArray(allUsernames),
         postId: postId,
         message: getRandomArray(comments),
     };
@@ -70,35 +69,36 @@ const getComment = (postUsername, postId) => {
     return comment;
 }
 
-const getMultipleComments = (postUsername, postId, n) => {
+const getMultipleComments = (postUserId, postId, n) => {
     let comments = [];
     for (let i = 0; i < n; i++) {
-        comments.push(getComment(postUsername, postId));
+        comments.push(getComment(postUserId, postId));
     }
     return comments;
 }
 
-const getPost = (username) => {
+const getPost = (userId) => {
     let postId = Math.floor(100000000 + Math.random() * 900000000);
     let post = {
         id: postId,
-        username: username,
+        userId: userId,
         postType: 0,
         postContent: getRandomArray(images),
         description: faker.lorem.sentence(),
         public: true,
         tagging: [],
-        comments: getMultipleComments(username, postId, perComment),
     };
+
+    getMultipleComments(userId, postId, perComment)
 
     allPosts.push(post);
     return post;
 }
 
-const getMultiplePosts = (username, n) => {
+const getMultiplePosts = (userId, n) => {
     let posts = [];
     for (let i = 0; i < n; i++) {
-        posts.push(getPost(username));
+        posts.push(getPost(userId));
     }
     return posts;
 }
@@ -113,12 +113,10 @@ const getUser = (n) => {
             email: "abc@gmail.com",
             password: "123456",
             profilePicture: "https://ui-avatars.com/api/?rounded=true",
-            followerCount: followMap.filter(f => f.followingId === 1).length,
-            followingCount: followMap.filter(f => f.followerId === 1).length,
-            postCount: 22,
-            posts: getMultiplePosts("demo", 22),
         }
     ]
+
+    getMultiplePosts(1, 22);
 
     for (let i = 0; i < n - 1; i++) {
         let tmpUsername = allUsernames[i + 1];
@@ -132,11 +130,9 @@ const getUser = (n) => {
             email: faker.internet.email(),
             password: faker.internet.password(),
             profilePicture: "https://ui-avatars.com/api/?rounded=true",
-            followerCount: followMap.filter(f => f.followingId === i + 2).length,
-            followingCount: followMap.filter(f => f.followerId === i + 2).length,
-            postCount: postNum,
-            posts: getMultiplePosts(tmpUsername, postNum),
         })
+
+        getMultiplePosts(1, postNum);
     }
 
     return users;
@@ -153,9 +149,8 @@ const generateLikeRelationship = () => {
     }
 }
 
-module.exports = () => {
+async function main() {
     generateFollowingRelationship();
-
     let data = {
         user: getUser(allUsersNum),
         post: sample(allPosts, allPosts.length),
@@ -165,5 +160,24 @@ module.exports = () => {
 
     generateLikeRelationship();
     data.like = likeMap;
-    return data;
+
+    const client = new MongoClient(dbUrl, {useUnifiedTopology: true});
+    try {
+        await client.connect();
+        const database = client.db("toktik");
+
+        for (let key of Object.keys(data)) {
+            const collection = database.collection(key);
+            // console.log(key);
+            // console.log(data[key]);
+            await collection.insertMany(data[key]);
+        }
+    } catch (e) {
+        console.error(e);
+    } finally {
+        await client.close();
+    }
 }
+
+main();
+
