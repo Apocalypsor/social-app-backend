@@ -101,6 +101,23 @@ router.get('/following', async(req, res)=>{
   }  
 });
 
+// Implement the GET /following/:followingId endpoint.
+router.get('/following/:followingId', async(req, res)=>{
+  console.log('Get following map given the followingId as a parameter.');
+  try {
+    // get the data from the db
+    const filterObj = {
+      followingId: req.params.followingId
+    }
+    const results = await dbLib.getObjectsByFilter(db, 'following', filterObj);
+    // send the response with the appropriate status code
+    res.status(200).json({ data: results });
+  } catch (err) {
+    res.status(404).json({ message: 'there was error.' });
+  }  
+});
+
+
 // Implement the DELETE /following endpoint
 router.delete('/following/:id', async(req, res)=>{
   console.log('Delete following map given followingMapId.');
@@ -137,11 +154,149 @@ router.post('/following', async(req, res)=>{
 router.get('/follower', async (req, res) =>{
   console.log('Get followers given the followingId as query parameter');
   try {
-    // get the data from the db
-    const results = await dbLib.getObjectById(db, 'follower', req.query.followingId);
+    let results;
+    if(req.query.followingId && req.query.followerId){
+      const filterObj = {
+        followingId: req.query.followingId,
+        followerId: req.query.followerId
+      }
+      results = await dbLib.getObjectsByFilter(db, 'follower', filterObj);
+    }else if(req.query.followingId){
+      const filterObj = {
+        followingId: req.query.followingId
+      }
+      results = await dbLib.getObjectsByFilter(db, 'follower', filterObj);
+    }else if(req.query.followerId){
+      const filterObj = {
+        followerId: req.query.followerId
+      }
+      results = await dbLib.getObjectsByFilter(db, 'follower', filterObj);
+    }else{
+      results = await dbLib.getAll(db, 'follower');
+    }
+    res.status(200).json({ data: results });
+  } catch (err) {
+    res.status(404).json({ message: 'there was error.' });
+  }
+});
+
+// Implement the GET /follower/:followerId endpoint
+router.get('/follower/:followerId', async (req, res) =>{
+  console.log('Get followers given the followerId as a parameter');
+  try {
+    let results;
+    if(!req.query.followingId){
+      const filterObj = {
+        _id: req.params.followerId,
+        followingId: req.query.followingId,
+      }
+      results = await dbLib.getObjectsByFilter(db, 'follower', filterObj);
+    }else {
+      results = await dbLib.getObjectById(db, 'follower', req.params.followerId);
+    }
     // send the response with the appropriate status code
     res.status(200).json({ data: results });
   } catch (err) {
+    res.status(404).json({ message: 'there was error.' });
+  }
+});
+
+// Implement the POST /follower endpoint
+router.post('/follower', async (req, res) =>{
+  console.log('Create follower item in map given followerMapItem.');
+  try {
+    // get the data from the db
+    const results = await dbLib.addObject(db, 'follower', req.body.followerMapItem);
+    // send the response with the appropriate status code
+    res.status(200).json({ data: results });
+  } catch (err) {
+    res.status(404).json({ message: 'there was error.' });
+  }
+});
+
+// Implement the DELETE /follower/:followingId endpoint
+router.delete('/follower/:followerId', async (req, res) =>{
+  console.log('Delete follower map given followerId.');
+  try {
+    // get the data from the db
+    const results = await dbLib.deleteObjectById(db, 'follower', req.params.followerId);
+    // send the response with the appropriate status code
+    res.status(200).json({ data: results });
+  } catch (err) {
+    res.status(404).json({ message: 'there was error.' });
+  }
+});
+
+
+
+
+/**
+ * 
+ * Like Map methods.
+ * 
+*/
+
+// Implement the GET /like endpoint
+router.get('/like', async (req, res) =>{
+  console.log('Get likes map item.');
+  try{
+    let results;
+    if(req.query.postId && req.query.userId){
+      const filterObj = {
+        postId: req.query.postId,
+        userId: req.query.userId
+      }
+      results = await dbLib.getObjectsByFilter(db, 'like', filterObj);
+    }else if(req.query.postId){
+      const filterObj = {
+        postId: req.query.postId
+      }
+      results = await dbLib.getObjectsByFilter(db, 'like', filterObj);
+    }else if(req.query.userId){
+      const filterObj = {
+        userId: req.query.userId
+      }
+      results = await dbLib.getObjectsByFilter(db, 'like', filterObj);
+    }else{
+      results = await dbLib.getAll(db, 'like');
+    }
+    res.status(200).json({ data: results });
+
+  }catch(err){
+    res.status(404).json({ message: 'there was error.' });
+  }
+});
+
+
+// Implement the GET /like/:likeId endpoint
+router.get('/like/:likeId', async (req, res) =>{
+  console.log('Get like map item given likeId.');
+  try{
+    const results = await dbLib.getObjectById(db, 'like', req.params.likeId);
+    res.status(200).json({ data: results });
+  }catch(err){
+    res.status(404).json({ message: 'there was error.' });
+  }
+});
+
+// Implement the POST /like endpoint
+router.post('/like', async (req, res) =>{
+  console.log('Create like map item given likeMapItem.');
+  try{
+    const results = await dbLib.addObject(db, 'like', req.body.likeMapItem);
+    res.status(200).json({ data: results });
+  }catch(err){
+    res.status(404).json({ message: 'there was error.' });
+  }
+});
+
+// Implement the DELETE /like/:likeId endpoint
+router.delete('/like/:likeId', async (req, res) =>{
+  console.log('Delete like map item given likeId.');
+  try{
+    const results = await dbLib.deleteObjectById(db, 'like', req.params.likeId);
+    res.status(200).json({ data: results });
+  }catch(err){
     res.status(404).json({ message: 'there was error.' });
   }
 });
