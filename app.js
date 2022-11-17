@@ -6,8 +6,9 @@ let logger = require('morgan');
 
 let indexRouter = require('./routes/index');
 let usersRouter = require('./routes/users');
+const {connect} = require("./db/dbFunction");
 
-let app = express();
+let app = express()
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -37,5 +38,9 @@ app.use(function (req, res, next) {
 //   res.status(err.status || 500);
 //   res.render('error');
 // });
+
+connect().then(() => {
+    console.log('connected');
+});
 
 module.exports = app;

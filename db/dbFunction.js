@@ -5,21 +5,33 @@ require('dotenv').config()
 // the mongodb server URL
 const dbURL = process.env.DB_URL;
 
+let con;
+let db;
+
 // connection to the db
-const connect = async () => {
-  // always use try/catch to handle any exception
-  try {
-      const con = (await MongoClient.connect(
-          dbURL,
-          {useNewUrlParser: true, useUnifiedTopology: true},
-      )).db('toktik');
-      // check that we are connected to the db
-      console.log(`connected to db: ${con.databaseName}`);
-      return con;
-  } catch (err) {
-      console.log(err.message);
-  }
+const connect = async (database) => {
+    // always use try/catch to handle any exception
+    database = database || 'toktik';
+    try {
+        con = (await MongoClient.connect(dbURL, {useNewUrlParser: true, useUnifiedTopology: true}));
+        db = con.db(database);
+        // check that we are connected to the db
+        console.log(`connecting to db: ${db.databaseName}`);
+        return db;
+    } catch (err) {
+        console.log(err.message);
+    }
 }
+
+const close = () => {
+    try {
+        con.close();
+        console.log('close connection');
+    } catch (err) {
+        console.log(`error: ${err.message}`);
+    }
+}
+
 
 const handleFilter = (filter) => {
     return filter.forEach((item, index) => {
@@ -55,6 +67,9 @@ const getObjectsByFilter = async (db, collectionName, filter) => {
 
 const addObject = async (db, collectionName, object) => {
     try {
+        let now = new Date();
+        object.createdAt = now;
+        object.updatedAt = now;
         let res = await db.collection(collectionName).insertOne(object);
         object._id = res.insertedId;
         return object;
@@ -65,6 +80,7 @@ const addObject = async (db, collectionName, object) => {
 
 const updateObjectById = async (db, collectionName, id, object) => {
     try {
+        object.updatedAt = new Date();
         let res = await db.collection(collectionName).updateOne({_id: ObjectId(id)}, {$set: object});
         if (res.matchedCount === 1) {
             object._id = ObjectId(id);
@@ -78,6 +94,7 @@ const updateObjectById = async (db, collectionName, id, object) => {
 const replaceObjectById = async (db, collectionName, id, object) => {
     try {
         object._id = ObjectId(id);
+        object.updatedAt = new Date();
         let res = await db.collection(collectionName).replaceOne({_id: ObjectId(id)}, object);
         if (res.matchedCount === 1) {
             return object;
@@ -100,7 +117,9 @@ const deleteObjectById = async (db, collectionName, id) => {
 
 // export the functions
 module.exports = {
+    db,
     connect,
+    close,
     getObjectById,
     getObjectByFilter,
     getObjectsByFilter,
