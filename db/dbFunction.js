@@ -1,5 +1,4 @@
-const {MongoClient} = require('mongodb');
-const {generateId} = require("../util/snowflake");
+const {MongoClient, ObjectId} = require('mongodb');
 
 require('dotenv').config()
 
@@ -24,7 +23,7 @@ const connect = async () => {
 
 const getObjectById = async (db, collectionName, id) => {
     try {
-        return await db.collection(collectionName).findOne({id: id});
+        return await db.collection(collectionName).findOne({_id: ObjectId(id)});
     } catch (err) {
         console.log(`error: ${err.message}`);
     }
@@ -48,7 +47,6 @@ const getObjectsByFilter = async (db, collectionName, filter) => {
 
 const addObject = async (db, collectionName, object) => {
     try {
-        object.id = generateId();
         return await db.collection(collectionName).insertOne(object);
     } catch (err) {
         console.log(`error: ${err.message}`);
@@ -57,7 +55,7 @@ const addObject = async (db, collectionName, object) => {
 
 const updateObjectById = async (db, collectionName, id, object) => {
     try {
-        return await db.collection(collectionName).updateOne({id: id}, {$set: object});
+        return await db.collection(collectionName).updateOne({_id: ObjectId(id)}, {$set: object});
     } catch (err) {
         console.log(`error: ${err.message}`);
     }
@@ -65,8 +63,8 @@ const updateObjectById = async (db, collectionName, id, object) => {
 
 const replaceObjectById = async (db, collectionName, id, object) => {
     try {
-        object.id = generateId();
-        return await db.collection(collectionName).replaceOne({id: id}, object);
+        object._id = ObjectId(id);
+        return await db.collection(collectionName).replaceOne({_id: ObjectId(id)}, object);
     } catch (err) {
         console.log(`error: ${err.message}`);
     }
@@ -74,7 +72,7 @@ const replaceObjectById = async (db, collectionName, id, object) => {
 
 const deleteObjectById = async (db, collectionName, id) => {
     try {
-        return await db.collection(collectionName).deleteOne({id: id});
+        return await db.collection(collectionName).deleteOne({_id: ObjectId(id)});
     } catch (err) {
         console.log(`error: ${err.message}`);
     }
