@@ -1,6 +1,4 @@
-const e = require('express');
-let express = require('express');
-let router = express.Router();
+let router = require('./index');
 
 const dbLib = require('./dbFunctions');
 
@@ -22,10 +20,11 @@ router.get('/user', async (req, res) => {
   try {
     // get the data from the db
     let result;
-    if(req.query.username) results = await dbLib.getObjectsByFilter(db, 'user', req.query.username);
-    else if (req.query.id) results = await dbLib.getObjectById(db, 'user', req.query.id);
-    
-    // send the response with the appropriate status code
+    if(req.query.username) {
+      result = await dbLib.getObjectsByFilter(db, 'user', req.query);
+    }else{
+      result = await dbLib.getAll(db, 'user');
+    }
     res.status(200).json({ data: results });
   } catch (err) {
     res.status(404).json({ message: 'there was error.' });
@@ -75,22 +74,8 @@ router.get('/following', async(req, res)=>{
   try {
     // get the data from the db
     let results;
-    if(req.query.followerId && req.query.followingId) {
-      const filterObj = {
-        followerId: req.query.followerId,
-        followingId: req.query.followingId
-      }
-      results = await dbLib.getObjectsByFilter(db, 'following', filterObj);
-    } else if(req.query.followerId){
-      const filterObj = {
-        followerId: req.query.followerId
-      }
-      results = await dbLib.getObjectsByFilter(db, 'following', filterObj);
-    }else if(req.query.followingId){
-      const filterObj = {
-        followingId: req.query.followingId
-      }
-      results = await dbLib.getObjectsByFilter(db, 'following', filterObj);
+    if(!!req.query) {
+      results = await dbLib.getObjectsByFilter(db, 'following', req.query);
     }else{
       results = await dbLib.getAll(db, 'following');
     }
@@ -155,22 +140,8 @@ router.get('/follower', async (req, res) =>{
   console.log('Get followers given the followingId as query parameter');
   try {
     let results;
-    if(req.query.followingId && req.query.followerId){
-      const filterObj = {
-        followingId: req.query.followingId,
-        followerId: req.query.followerId
-      }
-      results = await dbLib.getObjectsByFilter(db, 'follower', filterObj);
-    }else if(req.query.followingId){
-      const filterObj = {
-        followingId: req.query.followingId
-      }
-      results = await dbLib.getObjectsByFilter(db, 'follower', filterObj);
-    }else if(req.query.followerId){
-      const filterObj = {
-        followerId: req.query.followerId
-      }
-      results = await dbLib.getObjectsByFilter(db, 'follower', filterObj);
+    if(!!req.query){
+      results = await dbLib.getObjectsByFilter(db, 'follower', req.query);
     }else{
       results = await dbLib.getAll(db, 'follower');
     }
@@ -241,22 +212,8 @@ router.get('/like', async (req, res) =>{
   console.log('Get likes map item.');
   try{
     let results;
-    if(req.query.postId && req.query.userId){
-      const filterObj = {
-        postId: req.query.postId,
-        userId: req.query.userId
-      }
-      results = await dbLib.getObjectsByFilter(db, 'like', filterObj);
-    }else if(req.query.postId){
-      const filterObj = {
-        postId: req.query.postId
-      }
-      results = await dbLib.getObjectsByFilter(db, 'like', filterObj);
-    }else if(req.query.userId){
-      const filterObj = {
-        userId: req.query.userId
-      }
-      results = await dbLib.getObjectsByFilter(db, 'like', filterObj);
+    if(!!req.query){
+        results = await dbLib.getObjectsByFilter(db, 'like', req.query);
     }else{
       results = await dbLib.getAll(db, 'like');
     }
