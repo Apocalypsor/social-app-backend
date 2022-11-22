@@ -42,7 +42,7 @@ router.post('/post', async (req, res) => {
     console.log('Create a new post');
     try {
         if(!!req.body){
-            const results = await dbLib.createObject(db, 'post', req.body);
+            const results = await dbLib.createObject(db, 'post', req.body.postBody);
             res.status(200).json({ data: results });
         }else{
             res.status(404).json({ message: 'Empty postBody.' });
@@ -57,7 +57,7 @@ router.put('/post/:id', async (req, res) => {
     console.log('UPDATE a post given the id and postBody as parameters.');
     try {
         if(!!req.body && !!req.params.id){
-            const results = await dbLib.updateObjectById(db, 'post', req.params.id, req.body);
+            const results = await dbLib.updateObjectById(db, 'post', req.params.id, req.body.postBody);
             res.status(200).json({ data: results });
         }else{
             res.status(404).json({ message: 'Empty postBody or empty id.' });

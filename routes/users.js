@@ -62,6 +62,20 @@ router.put('/user/:id', async (req, res) => {
   }
 });
 
+
+// Implement the POST /user endpoint
+router.post('/user', async (req, res) =>{
+  console.log('Create User item in map given UserBody.');
+  try {
+    // get the data from the db
+    const results = await dbLib.addObject(db, 'user', req.body.newUser);
+    // send the response with the appropriate status code
+    res.status(200).json({ data: results });
+  } catch (err) {
+    res.status(404).json({ message: 'there was error.' });
+  }
+});
+
 /**
  * 
  *  Following methods.
@@ -87,14 +101,11 @@ router.get('/following', async(req, res)=>{
 });
 
 // Implement the GET /following/:followingId endpoint.
-router.get('/following/:followingId', async(req, res)=>{
+router.get('/following/:id', async(req, res)=>{
   console.log('Get following map given the followingId as a parameter.');
   try {
     // get the data from the db
-    const filterObj = {
-      followingId: req.params.followingId
-    }
-    const results = await dbLib.getObjectsByFilter(db, 'following', filterObj);
+    const results = await dbLib.getObjectsById(db, 'following', req.params.id);
     // send the response with the appropriate status code
     res.status(200).json({ data: results });
   } catch (err) {
@@ -123,6 +134,20 @@ router.post('/following', async(req, res)=>{
   try {
     // get the data from the db
     const results = await dbLib.addObject(db, 'following', req.body.followMapItem);
+    // send the response with the appropriate status code
+    res.status(200).json({ data: results });
+  } catch (err) {
+    res.status(404).json({ message: 'there was error.' });
+  }    
+});
+
+// Implement the PUT /following endpoint
+router.put('/following/:id', async(req, res)=>{
+
+  console.log('Update following item in map given followMapItem.');
+  try {
+    // get the data from the db
+    const results = await dbLib.updateObjectById(db, 'following', req.params.id, req.body.followMapItem);
     // send the response with the appropriate status code
     res.status(200).json({ data: results });
   } catch (err) {
@@ -198,6 +223,20 @@ router.delete('/follower/:followerId', async (req, res) =>{
   }
 });
 
+// Implement the PUT /follower/:followerId endpoint
+router.put('/follower/:followerId', async (req, res) =>{
+
+  console.log('Update follower item in map given followerMapItem.');
+  try {
+    // get the data from the db
+    const results = await dbLib.updateObjectById(db, 'follower', req.params.followerId, req.body.followerMapItem);
+    // send the response with the appropriate status code
+    res.status(200).json({ data: results });
+  } catch (err) {
+    res.status(404).json({ message: 'there was error.' });
+  }
+
+});
 
 
 
@@ -252,6 +291,18 @@ router.delete('/like/:likeId', async (req, res) =>{
   console.log('Delete like map item given likeId.');
   try{
     const results = await dbLib.deleteObjectById(db, 'like', req.params.likeId);
+    res.status(200).json({ data: results });
+  }catch(err){
+    res.status(404).json({ message: 'there was error.' });
+  }
+});
+
+// Implement the PUT /like/:likeId endpoint
+router.put('/like/:likeId', async (req, res) =>{
+
+  console.log('Update like map item given likeMapItem.');
+  try{
+    const results = await dbLib.updateObjectById(db, 'like', req.params.likeId, req.body.likeMapItem);
     res.status(200).json({ data: results });
   }catch(err){
     res.status(404).json({ message: 'there was error.' });
