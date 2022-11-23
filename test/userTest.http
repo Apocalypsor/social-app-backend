@@ -1,7 +1,7 @@
 GET http://localhost:4000/api/user?username=demo
 
 ###
-GET http://localhost:4000/api/user/6376ad21c85cf5483fb84f3a
+GET http://localhost:4000/api/user/637d9cf36f8819ebc9ff448c
 
 ###
 GET http://localhost:4000/api/user/123
@@ -38,4 +38,4 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:4000/api/user/637d94490f267f45f26f5cadasdasd
+DELETE http://localhost:4000/api/user/637dac90932d6c33c77b2918

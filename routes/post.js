@@ -1,7 +1,7 @@
 let router = require('./index');
 const dbLib = require('../db/dbFunction');
 
-let db = require('../app.js');
+const db = require('../app.js');
 
 /**
  * 

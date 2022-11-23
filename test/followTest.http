@@ -1,1 +1,31 @@
-GET localhost:4000/api/follower/follower-names/637d9cef6f8819ebc9ff4466
+GET localhost:4000/api/follow/follower-names/demo
+
+###
+GET localhost:4000/api/follow/follower-names/demoo
+
+###
+POST localhost:4000/api/follow/follow
+Content-Type: application/json
+
+{
+    "follower": "demo",
+    "following": "Carmelo_Pagac1"
+}
+
+###
+POST localhost:4000/api/follow/unfollow
+Content-Type: application/json
+
+{
+  "follower": "demo",
+  "following": "Carmelo_Pagac1"
+}
+
+###
+GET localhost:4000/api/follow/is-following/demo/Carmelo_Pagac1
+
+###
+GET localhost:4000/api/suggestions/demo
+
+###
+GET localhost:4000/api/follow/follow-count/demo
