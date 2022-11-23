@@ -1,5 +1,5 @@
-let router = requires('./index');
-const dbLib = require('./dbFunctions');
+let router = require('./index');
+const dbLib = require('../db/dbFunction');
 
 let db = require('../app.js');
 

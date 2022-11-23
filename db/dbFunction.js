@@ -17,13 +17,12 @@ const connect = async (database) => {
         db = con.db(database);
         // check that we are connected to the db
         console.log(`connecting to db: ${db.databaseName}`);
-        return db;
     } catch (err) {
         console.log(err.message);
     }
 }
 
-const close = () => {
+const close = (con) => {
     try {
         con.close();
         console.log('close connection');
@@ -32,18 +31,29 @@ const close = () => {
     }
 }
 
+const getDb = async () => {
+    return db;
+}
+
 
 const handleFilter = (filter) => {
-    return filter.forEach((item, index) => {
-        if (item._id) {
-            filter[index]._id = ObjectId(item._id);
-        }
-    });
+    if (filter._id) {
+        filter._id = ObjectId(filter._id);
+    }
+    return filter;
 }
 
 const getObjectById = async (db, collectionName, id) => {
     try {
         return await db.collection(collectionName).findOne({_id: ObjectId(id)});
+    } catch (err) {
+        console.log(`error: ${err.message}`);
+    }
+}
+
+const getObjects = async (db, collectionName) => {
+    try {
+        return await db.collection(collectionName).find().toArray();
     } catch (err) {
         console.log(`error: ${err.message}`);
     }
@@ -81,6 +91,7 @@ const addObject = async (db, collectionName, object) => {
 const updateObjectById = async (db, collectionName, id, object) => {
     try {
         object.updatedAt = new Date();
+        object._id = ObjectId(id);
         let res = await db.collection(collectionName).updateOne({_id: ObjectId(id)}, {$set: object});
         if (res.matchedCount === 1) {
             object._id = ObjectId(id);
@@ -117,9 +128,10 @@ const deleteObjectById = async (db, collectionName, id) => {
 
 // export the functions
 module.exports = {
-    db,
     connect,
     close,
+    getDb,
+    getObjects,
     getObjectById,
     getObjectByFilter,
     getObjectsByFilter,
