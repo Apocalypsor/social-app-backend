@@ -1,6 +1,7 @@
 const {MongoClient, ObjectId} = require('mongodb');
+const {UserNotFoundError} = require("../errors/userError");
 
-require('dotenv').config()
+require('dotenv').config();
 
 // the mongodb server URL
 const dbURL = process.env.DB_URL;
@@ -22,7 +23,7 @@ const connect = async (database) => {
     }
 }
 
-const close = (con) => {
+const close = () => {
     try {
         con.close();
         console.log('close connection');
@@ -37,92 +38,75 @@ const getDb = async () => {
 
 
 const handleFilter = (filter) => {
-    if (filter._id) {
-        filter._id = ObjectId(filter._id);
+    const needToHandle = ['_id', 'followerId', 'followingId'];
+    for (let key in filter) {
+        if (needToHandle.includes(key)) {
+            filter[key] = ObjectId(filter[key]);
+        }
     }
     return filter;
 }
 
 const getObjectById = async (db, collectionName, id) => {
-    try {
-        return await db.collection(collectionName).findOne({_id: ObjectId(id)});
-    } catch (err) {
-        console.log(`error: ${err.message}`);
-    }
+    return await db.collection(collectionName).findOne({_id: ObjectId(id)});
 }
 
 const getObjects = async (db, collectionName) => {
-    try {
-        return await db.collection(collectionName).find().toArray();
-    } catch (err) {
-        console.log(`error: ${err.message}`);
-    }
+    return await db.collection(collectionName).find().toArray();
 }
 
 const getObjectByFilter = async (db, collectionName, filter) => {
-    try {
-        return await db.collection(collectionName).findOne(handleFilter(filter));
-    } catch (err) {
-        console.log(`error: ${err.message}`);
-    }
+    return await db.collection(collectionName).findOne(handleFilter(filter));
 }
 
 const getObjectsByFilter = async (db, collectionName, filter) => {
-    try {
-        return await db.collection(collectionName).find(handleFilter(filter)).toArray();
-    } catch (err) {
-        console.log(`error: ${err.message}`);
-    }
+    console.log(handleFilter(filter));
+    return await db.collection(collectionName).find(handleFilter(filter)).toArray();
 }
 
 const addObject = async (db, collectionName, object) => {
-    try {
-        let now = new Date();
-        object.createdAt = now;
-        object.updatedAt = now;
-        let res = await db.collection(collectionName).insertOne(object);
-        object._id = res.insertedId;
-        return object;
-    } catch (err) {
-        console.log(`error: ${err.message}`);
+    if (object._id) {
+        delete object._id;
     }
+
+    let now = new Date();
+    object.createdAt = now;
+    object.updatedAt = now;
+    let res = await db.collection(collectionName).insertOne(object);
+    object._id = res.insertedId;
+    return object;
 }
 
 const updateObjectById = async (db, collectionName, id, object) => {
-    try {
-        object.updatedAt = new Date();
+    object.updatedAt = new Date();
+    object._id = ObjectId(id);
+    let res = await db.collection(collectionName).updateOne({_id: ObjectId(id)}, {$set: object});
+    if (res.matchedCount === 1) {
         object._id = ObjectId(id);
-        let res = await db.collection(collectionName).updateOne({_id: ObjectId(id)}, {$set: object});
-        if (res.matchedCount === 1) {
-            object._id = ObjectId(id);
-            return object;
-        }
-    } catch (err) {
-        console.log(`error: ${err.message}`);
+        return object;
     }
 }
 
 const replaceObjectById = async (db, collectionName, id, object) => {
-    try {
-        object._id = ObjectId(id);
-        object.updatedAt = new Date();
-        let res = await db.collection(collectionName).replaceOne({_id: ObjectId(id)}, object);
-        if (res.matchedCount === 1) {
-            return object;
-        }
-    } catch (err) {
-        console.log(`error: ${err.message}`);
+    object._id = ObjectId(id);
+    object.updatedAt = new Date();
+    let res = await db.collection(collectionName).replaceOne({_id: ObjectId(id)}, object);
+    if (res.matchedCount === 1) {
+        return object;
     }
 }
 
 const deleteObjectById = async (db, collectionName, id) => {
-    try {
-        const res = await db.collection(collectionName).findOneAndDelete({_id: ObjectId(id)});
-        if (res.ok === 1) {
+    const res = await db.collection(collectionName).findOneAndDelete({_id: ObjectId(id)});
+    console.log(res);
+    if (res.ok === 1) {
+        if (res.lastErrorObject.n === 1) {
             return res.value;
+        } else {
+            throw new UserNotFoundError();
         }
-    } catch (err) {
-        console.log(`error: ${err.message}`);
+    } else {
+        throw new Error('delete failed');
     }
 }
 

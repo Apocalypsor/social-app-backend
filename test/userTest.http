@@ -4,17 +4,38 @@ GET http://localhost:4000/api/user?username=demo
 GET http://localhost:4000/api/user/6376ad21c85cf5483fb84f3a
 
 ###
-PUT http://localhost:4000/api/user/6376ad21c85cf5483fb84f3a
+GET http://localhost:4000/api/user/123
+
+###
+PUT http://localhost:4000/api/user/6376ad39c85cf5483fb84fd5
 Content-Type: application/json
 
 {
-    "username": "demo",
-    "firstName": "Joe",
-    "lastName": "Biden",
-    "email": "abcd@gmail.com",
-    "password": "123456",
-    "profilePicture": "https://ui-avatars.com/api/?rounded=true",
-    "createdAt": "2022-11-17T21:52:33.857Z",
-    "updatedAt": "2022-11-17T21:52:33.857Z"
+  "_id": "6376ad39c85cf5483fb84fd5",
+  "username": "Abby.Champlin90",
+  "firstName": "Talon",
+  "lastName": "Altenwerth",
+  "email": "Casey42@gmail.com",
+  "password": "hT2uE1HybohrizE",
+  "profilePicture": "https://ui-avatars.com/api/?rounded=true",
+  "createdAt": "2022-11-17T21:52:57.667Z",
+  "updatedAt": "2022-11-17T21:52:57.667Z"
 }
 
+###
+POST http://localhost:4000/api/user
+Content-Type: application/json
+
+{
+  "username": "Abby.Champlin901",
+  "firstName": "Talon1",
+  "lastName": "Altenwerth1",
+  "email": "Casey42@gmail.com",
+  "password": "hT2uE1HybohrizE",
+  "profilePicture": "https://ui-avatars.com/api/?rounded=true",
+  "createdAt": "2022-11-17T21:52:57.667Z",
+  "updatedAt": "2022-11-17T21:52:57.667Z"
+}
+
+###
+DELETE http://localhost:4000/api/user/637d94490f267f45f26f5cadasdasd

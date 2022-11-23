@@ -7,7 +7,6 @@
 let app = require('../app');
 let debug = require('debug')('project---backend-group-x:server');
 let http = require('http');
-const {connect} = require("../db/dbFunction");
 
 /**
  * Get port from environment and store in Express.
@@ -52,7 +51,7 @@ function normalizePort(val) {
 }
 
 /**
- * Event listener for HTTP server "error" event.
+ * Event listener for HTTP server "errors" event.
  */
 
 function onError(error) {

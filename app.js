@@ -4,17 +4,13 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
+const userRouter = require('./routes/user');
+const followerRouter = require('./routes/follow');
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const dbLib = require('./db/dbFunction');
 
 const app = express()
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -22,21 +18,21 @@ app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// app.use('/', indexRouter);
-app.use('/api', usersRouter);
+app.use('/api', userRouter);
+app.use('/api', followerRouter);
 
-// catch 404 and forward to error handler
+// catch 404 and forward to errors handler
 app.use(function (req, res, next) {
   next(createError(404));
 });
 
-// error handler
+// errors handler
 app.use((err, req, res, next) => {
-  // set locals, only providing error in development
+  // set locals, only providing errors in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
+  // render the errors page
   res.status(err.status || 500);
   res.send({
       success: false,

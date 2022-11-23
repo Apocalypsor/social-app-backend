@@ -22,7 +22,7 @@ router.get('/post', async (req, res) => {
         }
         res.status(200).json({ data: results });
     }catch(err){
-        res.status(404).json({message: 'there was error.'});
+        res.status(404).json({message: 'there was errors.'});
     }
 });
 
@@ -33,7 +33,7 @@ router.get('/post/:id', async (req, res) => {
         const results = await dbLib.getObjectById(db, 'post', req.params.id);
         res.status(200).json({ data: results });
     }catch(err){
-        res.status(404).json({ message: 'there was error.' });
+        res.status(404).json({ message: 'there was errors.' });
     }
 });
 
@@ -48,7 +48,7 @@ router.post('/post', async (req, res) => {
             res.status(404).json({ message: 'Empty postBody.' });
         }
     }catch(err){
-        res.status(404).json({ message: 'there was error.' });
+        res.status(404).json({ message: 'there was errors.' });
     }
 });
 
@@ -63,7 +63,7 @@ router.put('/post/:id', async (req, res) => {
             res.status(404).json({ message: 'Empty postBody or empty id.' });
         }
     }catch(err){
-        res.status(404).json({ message: 'there was error.' });
+        res.status(404).json({ message: 'there was errors.' });
     }
 });
 
@@ -78,7 +78,7 @@ router.delete('/post/:id', async (req, res) => {
             res.status(404).json({ message: 'Empty id.' });
         }
     }catch(err){
-        res.status(404).json({ message: 'there was error.' });
+        res.status(404).json({ message: 'there was errors.' });
     }
 });
 
