@@ -111,87 +111,6 @@ const deleteObjectById = async (db, collectionName, id) => {
     }
 }
 
-const getFollowerNamesByUsername = async (db, username) => {
-    const res = await db.collection('user').aggregate([
-        {$match: {username: username}},
-        {$lookup: {from: 'follow', localField: '_id', foreignField: 'followingId', as: 'follow'}},
-        {$unwind: '$follow'},
-        {$lookup: {from: 'user', localField: 'follow.followerId', foreignField: '_id', as: 'follower'}},
-        {$unwind: '$follower'},
-        {$project: {_id: 0, follower: '$follower.username'}}
-    ]).toArray();
-
-    return res.map(item => item.follower);
-}
-
-const getFollowCountByUsername = async (db, username) => {
-    const res = await db.collection('user').aggregate([
-        {$match: {username: username}},
-        {$lookup: {from: 'follow', localField: '_id', foreignField: 'followingId', as: 'follow'}},
-        {$unwind: '$follow'},
-        {$project: {_id: 0, follower: '$follow.followerId'}}
-    ]).toArray();
-
-    return res.length;
-}
-
-
-
-const getFollowStatusByUsername = async (db, followerUsername, followingUsername) => {
-    const res = await db.collection('user').aggregate([
-        {$match: {username: followingUsername}},
-        {$lookup: {from: 'follow', localField: '_id', foreignField: 'followingId', as: 'follow'}},
-        {$unwind: '$follow'},
-        {$lookup: {from: 'user', localField: 'follow.followerId', foreignField: '_id', as: 'follower'}},
-        {$unwind: '$follower'},
-        {$match: {'follower.username': followerUsername}},
-        {$project: {_id: 0, follow: '$follow'}}
-    ]).toArray();
-
-    return res.length > 0;
-}
-
-const postFollowByUsername = async (db, followerUsername, followingUsername) => {
-    const follower = await db.collection('user').findOne({username: followerUsername});
-    const following = await db.collection('user').findOne({username: followingUsername});
-    console.log(follower);
-    console.log(following);
-
-    if (follower && following) {
-        const res = await db.collection('follow').insertOne({
-            followerId: follower._id,
-            followingId: following._id,
-        });
-        return res.insertedId;
-    } else {
-        throw new UserNotFoundError();
-    }
-}
-
-const postUnfollowByUsername = async (db, followerUsername, followingUsername) => {
-    const follower = await db.collection('user').findOne({username: followerUsername});
-    const following = await db.collection('user').findOne({username: followingUsername});
-
-    if (follower && following) {
-        const res = await db.collection('follow').findOneAndDelete({
-            followerId: follower._id,
-            followingId: following._id
-        });
-        if (res.ok === 1) {
-            if (res.lastErrorObject.n === 1) {
-                return res.value;
-            } else {
-                throw new UserNotFoundError();
-            }
-        } else {
-            throw new Error('delete failed');
-        }
-    } else {
-        throw new UserNotFoundError();
-    }
-}
-
-
 module.exports = {
     connect,
     close,
@@ -203,10 +122,5 @@ module.exports = {
     addObject,
     updateObjectById,
     replaceObjectById,
-    deleteObjectById,
-    getFollowCountByUsername,
-    getFollowerNamesByUsername,
-    getFollowStatusByUsername,
-    postFollowByUsername,
-    postUnfollowByUsername
+    deleteObjectById
 };

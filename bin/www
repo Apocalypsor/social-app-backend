@@ -8,6 +8,8 @@ let app = require('../app');
 let debug = require('debug')('project---backend-group-x:server');
 let http = require('http');
 
+require('dotenv').config();
+
 /**
  * Get port from environment and store in Express.
  */
