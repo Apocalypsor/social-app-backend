@@ -1,5 +1,5 @@
 const {MongoClient, ObjectId} = require('mongodb');
-const {ObjectNotFoundError} = require("../errors/Error");
+const {ObjectNotFoundError} = require("../errors/databaseError");
 
 require('dotenv').config();
 
