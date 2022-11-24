@@ -1,6 +1,6 @@
 GET localhost:4000/api/post
 ###
-GET localhost:4000/api/post/637eb20c15f568b242a68d18
+GET localhost:4000/api/post/637eecdca1c162a6784952b5
 ###
 
 GET localhost:4000/api/post/page/3?_limit=2
@@ -13,8 +13,41 @@ POST http://localhost:4000/api/post
 Content-Type: application/json
 
 {
-
+  "userId": "637eb20c15f568b242a68d17",
+  "postType": 0,
+  "postContent": "https://images.unsplash.com/photo-1663818796346-6bc15be05b11?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY2NTc3ODY3NA&ixlib=rb-1.2.1&q=80&w=1080",
+  "description": "Molestias nobis animi commodi harum accusantium quaerat iusto itaque repellat.",
+  "public": true,
+  "tagging": [],
+  "createdAt": "2022-11-23T23:51:41.704Z",
+  "updatedAt": "2022-11-23T23:51:41.704Z"
 }
+
+###
+PUT http://localhost:4000/api/post/637ef987cfcdabb76b9d8086
+Content-Type: application/json
+
+{
+  "_id": "637ef987cfcdabb76b9d8086",
+  "userId": "637eb20c15f568b242a68d17",
+  "postType": 1,
+  "postContent": "https://images.unsplash.com/photo-1663818796346-6bc15be05b11?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY2NTc3ODY3NA&ixlib=rb-1.2.1&q=80&w=1080",
+  "description": "Molestias nobis animi commodi harum accusantium quaerat iusto itaque repellat.",
+  "public": true,
+  "tagging": [],
+  "createdAt": "2022-11-23T23:51:41.704Z",
+  "updatedAt": "2022-11-23T23:51:41.704Z"
+}
+
+###
+GET localhost:4000/api/post/637ef987cfcdabb76b9d8086
+###
+
+DELETE http://localhost:4000/api/post/637ef987cfcdabb76b9d8086
+###
+
+
+
 
 
 

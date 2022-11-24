@@ -125,7 +125,7 @@ router.put('/post/:id', async (req, res, next) => {
     }
     try {
         const db = await dbLib.getDb();
-        const results = await dbLib.updateObjectById(db, 'post', req.params.id, req.body.postBody);
+        const results = await dbLib.updateObjectById(db, 'post', req.params.id, req.body);
         res.status(200).json({
             success: true,
             data: results
