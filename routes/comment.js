@@ -37,12 +37,15 @@ router.get('/comment/:id', async (req, res, next) => {
 router.post('/comment', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
-        const results = await dbLib.addObject(db, 'comment', req.body);
-
-        res.status(200).json({
-            success: true,
-            data: results
-        });
+        if(req.body.postId) {
+            const results = await dbLib.addObject(db, 'comment', req.body);
+            res.status(200).json({
+                success: true,
+                data: results
+            });
+        }else{
+            next(new CommentFailedToCreateError("Missing postId"));
+        }
     } catch {
         next(new CommentFailedToCreateError("Comment failed to create"));
     }

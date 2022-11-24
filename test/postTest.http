@@ -3,6 +3,10 @@ GET localhost:4000/api/post
 GET localhost:4000/api/post/637eecdca1c162a6784952b5
 ###
 
+GET localhost:4000/api/post/username/demo
+
+###
+
 GET localhost:4000/api/post/page/3?_limit=2
 ###
 
