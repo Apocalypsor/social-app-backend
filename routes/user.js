@@ -5,6 +5,7 @@ const {
     UserNotFoundError, UserFailedToUpdateError,
     UserFailedToCreateError, UserFailedToDeleteError
 } = require('../errors/userError');
+const {ObjectNotFoundError} = require("../errors/Error");
 
 
 router.get('/user', async (req, res, next) => {
@@ -51,8 +52,8 @@ router.put('/user/:id', async (req, res, next) => {
             data: result
         });
     } catch (err) {
-        if (err instanceof UserNotFoundError) {
-            next(err);
+        if (err instanceof ObjectNotFoundError) {
+            next(new UserNotFoundError("User not found"));
         } else {
             next(new UserFailedToUpdateError("Failed to update user"));
         }
@@ -82,7 +83,7 @@ router.delete('/user/:id', async (req, res, next) => {
             data: results
         });
     } catch (err) {
-        if (err instanceof UserNotFoundError) {
+        if (err instanceof ObjectNotFoundError) {
             next(new UserFailedToDeleteError("User to be deleted not found"));
         } else {
             next(new UserFailedToDeleteError("User failed to delete"));

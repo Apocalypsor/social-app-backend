@@ -1,5 +1,5 @@
 const {MongoClient, ObjectId} = require('mongodb');
-const {UserNotFoundError} = require("../errors/userError");
+const {ObjectNotFoundError} = require("../errors/Error");
 
 require('dotenv').config();
 
@@ -85,7 +85,7 @@ const updateObjectById = async (db, collectionName, id, object) => {
         object._id = ObjectId(id);
         return object;
     } else {
-        throw new UserNotFoundError("User not found");
+        throw new ObjectNotFoundError();
     }
 }
 
@@ -105,7 +105,7 @@ const deleteObjectById = async (db, collectionName, id) => {
         if (res.lastErrorObject.n === 1) {
             return res.value;
         } else {
-            throw new UserNotFoundError();
+            throw new ObjectNotFoundError();
         }
     } else {
         throw new Error('delete failed');
