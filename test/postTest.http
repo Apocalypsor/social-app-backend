@@ -1,0 +1,26 @@
+GET localhost:4000/api/post
+###
+GET localhost:4000/api/post/637eb20c15f568b242a68d18
+###
+
+GET localhost:4000/api/post/page/3?_limit=2
+###
+
+GET localhost:4000/api/post/page/3?_limit=2&_order=asc
+###
+
+POST http://localhost:4000/api/post
+Content-Type: application/json
+
+{
+
+}
+
+
+
+
+
+
+
+
+

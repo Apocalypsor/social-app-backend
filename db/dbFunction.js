@@ -64,6 +64,10 @@ const getObjectsByFilter = async (db, collectionName, filter) => {
     return await db.collection(collectionName).find(handleFilter(filter)).toArray();
 }
 
+const getObjectsByFilterOptionAndPage = async (db, collectionName, filter, option, pageObj) => {
+    return await db.collection(collectionName).find(handleFilter(filter), option).skip(pageObj.skipNum).limit(pageObj.limitNum).toArray();
+}
+
 const addObject = async (db, collectionName, object) => {
     if (object._id) {
         delete object._id;
@@ -120,6 +124,7 @@ module.exports = {
     getObjectById,
     getObjectByFilter,
     getObjectsByFilter,
+    getObjectsByFilterOptionAndPage,
     addObject,
     updateObjectById,
     replaceObjectById,
