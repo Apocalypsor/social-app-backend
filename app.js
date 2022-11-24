@@ -4,14 +4,13 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
+const indexRouter = require('./routes/index');
 const userRouter = require('./routes/user');
 const followerRouter = require('./routes/follow');
 const likeRouter = require('./routes/like');
 const postRouter = require('./routes/post');
 const commentRouter = require('./routes/comment');
 
-const swaggerJSDoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
 const dbLib = require('./db/dbFunction');
 
 const app = express()
@@ -22,6 +21,7 @@ app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/api', indexRouter);
 app.use('/api', userRouter);
 app.use('/api', followerRouter);
 app.use('/api', likeRouter);
@@ -46,24 +46,6 @@ app.use((err, req, res, next) => {
       message: err.message
   });
 });
-
-// docs
-// const swaggerDefinition = {
-//     openapi: '3.0.0',
-//     info: {
-//         title: 'Toktik API',
-//         version: '0.0.1',
-//     },
-// };
-//
-// const options = {
-//     swaggerDefinition,
-//     apis: ['./routes/*.js'],
-// };
-
-// const swaggerSpec = swaggerJSDoc(options);
-// app.use('/api/docs', swaggerUi.serve)
-// app.get('/api/docs', swaggerUi.setup(swaggerSpec))
 
 // connect to db
 dbLib.connect().then(() => {

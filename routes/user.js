@@ -7,7 +7,6 @@ const {
 } = require('../errors/userError');
 const {ObjectNotFoundError} = require("../errors/databaseError");
 
-
 router.get('/user/:username', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
