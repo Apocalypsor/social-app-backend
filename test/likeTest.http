@@ -1,1 +1,19 @@
-GET localhost:4000/api/like/is-like/
+GET localhost:4000/api/like/is-like/demo/637eb20d15f568b242a68d1e
+
+###
+POST localhost:4000/api/like/like
+Content-Type: application/json
+
+{
+    "userLike": "demo",
+    "postId": "637eb20d15f568b242a68d1e"
+}
+
+###
+POST localhost:4000/api/like/unlike
+Content-Type: application/json
+
+{
+  "userLike": "demo",
+  "postId": "637eb20d15f568b242a68d1e"
+}

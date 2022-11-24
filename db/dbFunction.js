@@ -38,12 +38,13 @@ const getDb = async () => {
 
 
 const handleFilter = (filter) => {
-    const needToHandle = ['_id'];
+    const needToHandle = ['_id', 'postId'];
     for (let key in filter) {
         if (needToHandle.includes(key) && !(filter[key] instanceof ObjectId)) {
             filter[key] = ObjectId(filter[key]);
         }
     }
+
     return filter;
 }
 

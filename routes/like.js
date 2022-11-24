@@ -20,4 +20,62 @@ router.get('/like/is-like/:likeUsername/:postId', async (req, res, next) => {
     }
 });
 
+router.post('/like/like', async (req, res, next) => {
+    if (!req.body.postId || !req.body.userLike) {
+        next(new LikeFailedToGetError('Missing required fields'));
+        return;
+    }
+
+    try {
+        const db = await dbLib.getDb();
+
+        let existed = await dbLib.getObjectByFilter(
+            db, 'like',
+            {postId: req.body.postId, userLike: req.body.userLike}
+        );
+
+        if (!existed) {
+            await dbLib.addObject(db, 'like', {
+                postId: req.body.postId,
+                userLike: req.body.userLike
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: true
+        });
+    } catch {
+        next(new LikeFailedToGetError('Failed to like'));
+    }
+});
+
+router.post('/like/unlike', async (req, res, next) => {
+    if (!req.body.postId || !req.body.userLike) {
+        next(new LikeFailedToGetError('Missing required fields'));
+        return;
+    }
+
+    try {
+        const db = await dbLib.getDb();
+
+        let existed = await dbLib.getObjectByFilter(
+            db, 'like',
+            {postId: req.body.postId, userLike: req.body.userLike}
+        );
+
+        if (existed) {
+            await dbLib.deleteObjectById(db, 'like', existed._id);
+        }
+
+        res.status(200).json({
+            success: true,
+            data: true
+        });
+    } catch {
+        next(new LikeFailedToGetError('Failed to unlike'));
+    }
+});
+
+
 module.exports = router;

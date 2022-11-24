@@ -8,7 +8,7 @@ router.get('/follow/follower-names/:username', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
-        let followerNames = await dbLib.getObjectsByFilter(db, 'follow', {'following': req.params.username});
+        let followerNames = await dbLib.getObjectsByFilter(db, 'follow', {following: req.params.username});
         res.status(200).json({
             success: true,
             data: followerNames.map(user => user.follower)
@@ -22,7 +22,7 @@ router.get('/follow/follow-count/:username', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
-        let followCount = await dbLib.getObjectsByFilter(db, 'follow', {'following': req.params.username});
+        let followCount = await dbLib.getObjectsByFilter(db, 'follow', {following: req.params.username});
 
         res.status(200).json({
             success: true,
@@ -39,7 +39,7 @@ router.get('/follow/is-following/:followerUsername/:followingUsername', async (r
 
         let isFollowing = await dbLib.getObjectByFilter(
             db, 'follow',
-            {'follower': req.params.followerUsername, 'following': req.params.followingUsername}
+            {follower: req.params.followerUsername, following: req.params.followingUsername}
         );
 
         res.status(200).json({
@@ -62,10 +62,8 @@ router.post('/follow/follow', async (req, res, next) => {
 
         let existed = await dbLib.getObjectByFilter(
             db, 'follow',
-            {'follower': req.body.follower, 'following': req.body.following}
+            {follower: req.body.follower, following: req.body.following}
         );
-
-        console.log(existed);
 
         if (!existed) {
             await dbLib.addObject(db, 'follow', {
