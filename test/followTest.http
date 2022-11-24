@@ -13,6 +13,14 @@ Content-Type: application/json
 }
 
 ###
+POST localhost:4000/api/follow/follow
+Content-Type: application/json
+
+{
+  "following": "Carmelo_Pagac1"
+}
+
+###
 POST localhost:4000/api/follow/unfollow
 Content-Type: application/json
 

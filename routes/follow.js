@@ -1,16 +1,17 @@
 const router = require("./index");
 const dbLib = require("../db/dbFunction");
 const {FollowerFailedToGetError} = require("../errors/followError");
-const {ObjectId} = require("mongodb");
+const {getObjectsByFilter} = require("../db/dbFunction");
+const shuffle = require('shuffle-array');
 
 router.get('/follow/follower-names/:username', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
-        let followerNames = await dbLib.getFollowerNamesByUsername(db, req.params.username);
+        let followerNames = await dbLib.getObjectsByFilter(db, 'follow', {'following': req.params.username});
         res.status(200).json({
             success: true,
-            data: followerNames
+            data: followerNames.map(user => user.follower)
         });
     } catch {
         next(new FollowerFailedToGetError('Failed to get follower names'));
@@ -21,10 +22,11 @@ router.get('/follow/follow-count/:username', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
-        let followCount = await dbLib.getFollowCountByUsername(db, req.params.username);
+        let followCount = await dbLib.getObjectsByFilter(db, 'follow', {'following': req.params.username});
+
         res.status(200).json({
             success: true,
-            data: followCount
+            data: followCount.length
         });
     } catch {
         next(new FollowerFailedToGetError('Failed to get follower count'));
@@ -35,13 +37,14 @@ router.get('/follow/is-following/:followerUsername/:followingUsername', async (r
     try {
         const db = await dbLib.getDb();
 
-        let isFollowing = await dbLib.getFollowStatusByUsername(
-            db, req.params.followerUsername, req.params.followingUsername
+        let isFollowing = await dbLib.getObjectByFilter(
+            db, 'follow',
+            {'follower': req.params.followerUsername, 'following': req.params.followingUsername}
         );
 
         res.status(200).json({
             success: true,
-            data: isFollowing
+            data: !!isFollowing
         });
     } catch {
         next(new FollowerFailedToGetError('Failed to get following status'));
@@ -49,15 +52,26 @@ router.get('/follow/is-following/:followerUsername/:followingUsername', async (r
 });
 
 router.post('/follow/follow', async (req, res, next) => {
+    if (!req.body.follower || !req.body.following) {
+        next(new FollowerFailedToGetError('Missing follower or following'));
+        return;
+    }
+
     try {
         const db = await dbLib.getDb();
 
-        let existed = await dbLib.getFollowStatusByUsername(
-            db, req.body.follower, req.body.following
+        let existed = await dbLib.getObjectByFilter(
+            db, 'follow',
+            {'follower': req.body.follower, 'following': req.body.following}
         );
 
+        console.log(existed);
+
         if (!existed) {
-            await dbLib.postFollowByUsername(db, req.body.follower, req.body.following);
+            await dbLib.addObject(db, 'follow', {
+                follower: req.body.follower,
+                following: req.body.following
+            });
         }
 
         res.status(200).json({
@@ -70,15 +84,21 @@ router.post('/follow/follow', async (req, res, next) => {
 });
 
 router.post('/follow/unfollow', async (req, res, next) => {
+    if (!req.body.follower || !req.body.following) {
+        next(new FollowerFailedToGetError('Missing follower or following'));
+        return;
+    }
+
     try {
         const db = await dbLib.getDb();
 
-        let existed = await dbLib.getFollowStatusByUsername(
-            db, req.body.follower, req.body.following
+        let existed = await dbLib.getObjectByFilter(
+            db, 'follow',
+            {follower: req.body.follower, following: req.body.following}
         );
 
         if (existed) {
-            await dbLib.postUnfollowByUsername(db, req.body.follower, req.body.following);
+            await dbLib.deleteObjectById(db, 'follow', existed._id);
         }
 
         res.status(200).json({
@@ -96,38 +116,31 @@ router.get('/suggestions/:username', async (req, res, next) => {
 
         const finalArray = [];
         const checkId = new Set();
-        const currentUser = await dbLib.getObjectByFilter(db, 'user', {username: req.params.username});
-        const following = await dbLib.getObjectsByFilter(db, 'follow', {followerId: currentUser._id});
-        const followingIds = new Set(following.map(follow => follow.followingId.toString()));
+        const currentUser = req.params.username;
+        const following = await dbLib.getObjectsByFilter(db, 'follow', {follower: currentUser});
+        const followingIds = new Set(following.map(follow => follow.following));
 
-        const followingFollower = new Set((await db.collection('follow').aggregate([
-            {
-                $match: {
-                    followingId: {
-                        $in: [...followingIds].map(id => ObjectId(id))
-                    }
-                }
-            },
-            {
-                $project: {
-                    followerId: 1
-                }
-            }
-        ]).toArray()).map(follower => follower.followerId.toString()));
+        const followingFollower = new Set(
+            await getObjectsByFilter(db, 'follow', {following: {$in: [...followingIds]}})
+        );
 
-        for (let follower of followingFollower) {
-            if (currentUser._id.toString() !== follower) {
+        const followingFollowerUsername = shuffle([...followingFollower].map(follow => follow.follower));
+
+
+        for (let followerUsername of followingFollowerUsername) {
+            if (currentUser !== followerUsername) {
                 const followerFollowingIds = new Set(
-                    (await dbLib.getObjectsByFilter(db, 'follow', {followerId: ObjectId(follower)}))
-                        .map(follow => follow.followingId.toString())
+                    [...followingFollower].filter(
+                        follow => follow.follower === followerUsername
+                    ).map(follow => follow.following)
                 );
 
                 const intersection = new Set([...followerFollowingIds].filter((x) => followingIds.has(x)));
 
                 if (intersection.size >= 3) {
-                    if (!followingIds.has(follower) && !checkId.has(follower)) {
-                        checkId.add(follower);
-                        finalArray.push(ObjectId(follower));
+                    if (!followingIds.has(followerUsername) && !checkId.has(followerUsername)) {
+                        checkId.add(followerUsername);
+                        finalArray.push(followerUsername);
                         if (finalArray.length === 5) {
                             break;
                         }
@@ -136,10 +149,9 @@ router.get('/suggestions/:username', async (req, res, next) => {
             }
         }
 
-        const suggestions = await dbLib.getObjectsByFilter(db, 'user', {_id: {$in: finalArray}});
         res.status(200).json({
             success: true,
-            data: suggestions.map(suggestion => suggestion.username)
+            data: finalArray
         });
     } catch {
         next(new FollowerFailedToGetError('Failed to get suggestions'));

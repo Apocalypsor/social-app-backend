@@ -38,9 +38,9 @@ const getDb = async () => {
 
 
 const handleFilter = (filter) => {
-    const needToHandle = ['_id', 'followerId', 'followingId'];
+    const needToHandle = ['_id'];
     for (let key in filter) {
-        if (needToHandle.includes(key) && filter[key] instanceof ObjectId) {
+        if (needToHandle.includes(key) && !(filter[key] instanceof ObjectId)) {
             filter[key] = ObjectId(filter[key]);
         }
     }
