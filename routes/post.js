@@ -7,7 +7,7 @@ const {
     PostFailedToCreateError,
     PostFailedToUpdateError
 } = require('../errors/postError');
-const {ObjectNotFoundError} = require("../errors/Error");
+const {ObjectNotFoundError} = require("../errors/databaseError");
 
 
 
