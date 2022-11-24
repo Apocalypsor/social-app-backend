@@ -8,6 +8,8 @@ const userRouter = require('./routes/user');
 const followerRouter = require('./routes/follow');
 const likeRouter = require('./routes/like');
 const postRouter = require('./routes/post');
+const commentRouter = require('./routes/comment');
+
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const dbLib = require('./db/dbFunction');
@@ -24,6 +26,7 @@ app.use('/api', userRouter);
 app.use('/api', followerRouter);
 app.use('/api', likeRouter);
 app.use('/api', postRouter);
+app.use('/api', commentRouter);
 
 // catch 404 and forward to errors handler
 app.use(function (req, res, next) {

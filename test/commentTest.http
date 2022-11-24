@@ -1,0 +1,16 @@
+GET localhost:4000/api/comment/post/637eecdca1c162a6784952b5
+
+###
+GET localhost:4000/api/comment/637f008d6b03ac9d3138241e
+
+###
+POST localhost:4000/api/comment
+
+{
+    "username": "Monty_Wolf",
+    "postId": "637eecdca1c162a6784952b5",
+    "message": "You’re fabulous ❤️"
+}
+
+###
+DELETE localhost:4000/api/comment/637f00d96b03ac9d3138241f

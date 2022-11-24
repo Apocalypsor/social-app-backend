@@ -1,5 +1,5 @@
 const {MongoClient, ObjectId} = require('mongodb');
-const {ObjectNotFoundError} = require("../errors/databaseError");
+const {ObjectNotFoundError, ObjectInvalidError} = require("../errors/databaseError");
 
 require('dotenv').config();
 
@@ -49,26 +49,49 @@ const handleFilter = (filter) => {
 }
 
 const getObjectById = async (db, collectionName, id) => {
-    return await db.collection(collectionName).findOne({_id: ObjectId(id)});
+    const res = await db.collection(collectionName).findOne({_id: ObjectId(id)});
+    if (!res) {
+        throw new ObjectNotFoundError(`object with id: ${id} not found`);
+    }
+    return res;
 }
 
 const getObjects = async (db, collectionName) => {
-    return await db.collection(collectionName).find().toArray();
+    const res = await db.collection(collectionName).find().toArray();
+    if (!res || res.length === 0) {
+        throw new ObjectNotFoundError(`no ${collectionName} found`);
+    }
 }
 
 const getObjectByFilter = async (db, collectionName, filter) => {
-    return await db.collection(collectionName).findOne(handleFilter(filter));
+    const res = await db.collection(collectionName).findOne(handleFilter(filter));
+    if (!res) {
+        throw new ObjectNotFoundError();
+    }
+    return res;
 }
 
 const getObjectsByFilter = async (db, collectionName, filter) => {
-    return await db.collection(collectionName).find(handleFilter(filter)).toArray();
+    const res = db.collection(collectionName).find(handleFilter(filter)).toArray();
+    if (!res || res.length === 0) {
+        throw new ObjectNotFoundError();
+    }
+    return res;
 }
 
 const getObjectsByFilterOptionAndPage = async (db, collectionName, filter, option, pageObj) => {
-    return await db.collection(collectionName).find(handleFilter(filter), option).skip(pageObj.skipNum).limit(pageObj.limitNum).toArray();
+    const res = db.collection(collectionName).find(handleFilter(filter), option).skip(pageObj.skipNum).limit(pageObj.limitNum).toArray();
+    if (!res || res.length === 0) {
+        throw new ObjectNotFoundError();
+    }
+    return res;
 }
 
 const addObject = async (db, collectionName, object) => {
+    if (!object) {
+        throw new ObjectInvalidError('object is null');
+    }
+
     if (object._id) {
         delete object._id;
     }
@@ -82,6 +105,14 @@ const addObject = async (db, collectionName, object) => {
 }
 
 const updateObjectById = async (db, collectionName, id, object) => {
+    if (!object) {
+        throw new ObjectInvalidError('object is null');
+    }
+
+    if (object._id) {
+        delete object._id;
+    }
+
     object.updatedAt = new Date();
     object._id = ObjectId(id);
     let res = await db.collection(collectionName).updateOne({_id: ObjectId(id)}, {$set: object});
@@ -93,18 +124,60 @@ const updateObjectById = async (db, collectionName, id, object) => {
     }
 }
 
+const updateObjectByFilter = async (db, collectionName, filter, object) => {
+    if (!object) {
+        throw new ObjectInvalidError('object is null');
+    }
+
+    if (object._id) {
+        delete object._id;
+    }
+
+    object.updatedAt = new Date();
+    let res = await db.collection(collectionName).findOneAndUpdate(
+        handleFilter(filter),
+        {$set: object}, {returnDocument: 'after'}
+    );
+
+    if (res.ok === 1) {
+        return res.value;
+    } else {
+        throw new ObjectNotFoundError();
+    }
+
+}
+
 const replaceObjectById = async (db, collectionName, id, object) => {
+    if (!object) {
+        throw new ObjectInvalidError('object is null');
+    }
+
     object._id = ObjectId(id);
     object.updatedAt = new Date();
     let res = await db.collection(collectionName).replaceOne({_id: ObjectId(id)}, object);
     if (res.matchedCount === 1) {
         return object;
+    } else {
+        throw new ObjectNotFoundError();
     }
 }
 
 const deleteObjectById = async (db, collectionName, id) => {
     const res = await db.collection(collectionName).findOneAndDelete({_id: ObjectId(id)});
-    console.log(res);
+
+    if (res.ok === 1) {
+        if (res.lastErrorObject.n === 1) {
+            return res.value;
+        } else {
+            throw new ObjectNotFoundError();
+        }
+    } else {
+        throw new Error('delete failed');
+    }
+}
+
+const deleteObjectByFilter = async (db, collectionName, filter) => {
+    const res = await db.collection(collectionName).findOneAndDelete(handleFilter(filter));
     if (res.ok === 1) {
         if (res.lastErrorObject.n === 1) {
             return res.value;
@@ -127,6 +200,8 @@ module.exports = {
     getObjectsByFilterOptionAndPage,
     addObject,
     updateObjectById,
+    updateObjectByFilter,
     replaceObjectById,
-    deleteObjectById
+    deleteObjectById,
+    deleteObjectByFilter
 };

@@ -5,4 +5,11 @@ class ObjectNotFoundError extends Error {
   }
 }
 
-module.exports = {ObjectNotFoundError};
+class ObjectInvalidError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'ObjectInvalidError';
+  }
+}
+
+module.exports = {ObjectNotFoundError, ObjectInvalidError};
