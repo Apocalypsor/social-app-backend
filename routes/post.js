@@ -1,5 +1,3 @@
-const router = require('./index');
-
 const dbLib = require('../db/dbFunction');
 const {
     PostNotFoundError,
@@ -8,24 +6,18 @@ const {
     PostFailedToUpdateError
 } = require('../errors/postError');
 const {ObjectNotFoundError} = require("../errors/databaseError");
+const express = require("express");
 
-
-
-/**
- * 
- * Post methods.
- * 
-*/
+const router = express.Router();
 
 // Implement the GET /post/username/:username endpoint
-router.get('/post/username/:username', async (req, res, next) => {
-
+router.get('/username/:username', async (req, res, next) => {
     try {
         // get the data from the db
         const db = await dbLib.getDb();
 
         let results;
-        if(req.params.username) {
+        if (req.params.username) {
             results = await dbLib.getObjectsByFilter(db, 'post', {username: req.params.username});
             res.status(200).json({
                 success: true,
@@ -40,7 +32,7 @@ router.get('/post/username/:username', async (req, res, next) => {
 });
 
 // Implement the GET /post/id endpoint
-router.get('/post/:id', async (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
         const results = await dbLib.getObjectById(db, 'post', req.params.id);
@@ -56,25 +48,25 @@ router.get('/post/:id', async (req, res, next) => {
 });
 
 // Implement the GET /post endpoint
-router.get('/post', async (req, res, next) => {
-    try{
+router.get('/', async (req, res, next) => {
+    try {
         const db = await dbLib.getDb();
         const results = await dbLib.getObjects(db, 'post');
         res.status(200).json({
             success: true,
             data: results
         });
-    }catch {
+    } catch {
         next(new PostNotFoundError("Post not found"));
     }
 });
 
 // Implement the GET /post/page/:page endpoint
-router.get('/post/page/:page', async (req, res, next) => {
+router.get('/page/:page', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
-        if(req.params.page){
-            const limitNum = req.query["_limit"] === undefined ? 5: req.query["_limit"];
+        if (req.params.page) {
+            const limitNum = req.query["_limit"] === undefined ? 5 : req.query["_limit"];
             const order = req.query["_order"] === undefined ? -1 : req.query["_order"];
             const option = {
                 sort: {'updatedAt': order === 'asc' ? 1 : -1},
@@ -101,15 +93,23 @@ router.get('/post/page/:page', async (req, res, next) => {
 
 
 // Implement the POST /post endpoint
-router.post('/post', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
-        if(req.body){
-            const results = await dbLib.addObject(db, 'post', req.body);
-            res.status(200).json({
-                success: true,
-                data: results
-            });
+        if (req.body) {
+            if (req.body instanceof Array) {
+                const results = await dbLib.addObjects(db, 'post', req.body);
+                res.status(200).json({
+                    success: true,
+                    data: results
+                });
+            } else {
+                const results = await dbLib.addObject(db, 'post', req.body);
+                res.status(200).json({
+                    success: true,
+                    data: results
+                });
+            }
         }else{
             next(new PostFailedToCreateError("Missing post body"));
         }
@@ -119,8 +119,8 @@ router.post('/post', async (req, res, next) => {
 });
 
 // Implement the PUT /post/id endpoint
-router.put('/post/:id', async (req, res, next) => {
-    if(!req.body){
+router.put('/:id', async (req, res, next) => {
+    if (!req.body) {
         next(new PostFailedToUpdateError("Missing post body"));
     }
     try {
@@ -141,7 +141,7 @@ router.put('/post/:id', async (req, res, next) => {
 
 
 // Implement the DELETE /post/id endpoint
-router.delete('/post/:id', async (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
         const results = await dbLib.deleteObjectById(db, 'post', req.params.id);
@@ -149,8 +149,8 @@ router.delete('/post/:id', async (req, res, next) => {
             success: true,
             data: results
         });
-    } catch (err){
-        if(err instanceof ObjectNotFoundError){
+    } catch (err) {
+        if (err instanceof ObjectNotFoundError) {
             next(new PostFailedToDeleteError("Post to be deleted not found."))
         }else {
             next(new PostFailedToDeleteError("Post failed to delete."));

@@ -1,9 +1,9 @@
 class PostNotFoundError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'PostNotFoundError';
-    this.status = 500;
-  }
+    constructor(message) {
+        super(message);
+        this.name = 'PostNotFoundError';
+        this.status = 500;
+    }
 }
 
 class PostFailedToCreateError extends Error {
@@ -23,7 +23,7 @@ class PostFailedToUpdateError extends Error {
 }
 
 
-class PostFailedToDeleteError extends Error{
+class PostFailedToDeleteError extends Error {
     constructor(message) {
         super(message);
         this.name = 'PostFailedToDeleteError';

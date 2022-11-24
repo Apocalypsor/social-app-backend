@@ -104,6 +104,30 @@ const addObject = async (db, collectionName, object) => {
     return object;
 }
 
+const addObjects = async (db, collectionName, objects) => {
+    if (!objects || objects.length === 0) {
+        throw new ObjectInvalidError('objects is null');
+    }
+
+    let newObjects = [];
+    for (let object of objects) {
+        if (object._id) {
+            delete object._id;
+        }
+
+        let now = new Date();
+        object.createdAt = now;
+        object.updatedAt = now;
+        newObjects.push(handleFilter(object));
+    }
+
+    let res = await db.collection(collectionName).insertMany(newObjects);
+    for (let i = 0; i < res.insertedIds.length; i++) {
+        newObjects[i]._id = res.insertedIds[i];
+    }
+    return newObjects;
+}
+
 const updateObjectById = async (db, collectionName, id, object) => {
     if (!object) {
         throw new ObjectInvalidError('object is null');
@@ -199,6 +223,7 @@ module.exports = {
     getObjectsByFilter,
     getObjectsByFilterOptionAndPage,
     addObject,
+    addObjects,
     updateObjectById,
     updateObjectByFilter,
     replaceObjectById,

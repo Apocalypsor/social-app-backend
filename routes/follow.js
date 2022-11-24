@@ -1,10 +1,12 @@
-const router = require("./index");
 const dbLib = require("../db/dbFunction");
 const {FollowerFailedToGetError} = require("../errors/followError");
 const {getObjectsByFilter} = require("../db/dbFunction");
 const shuffle = require('shuffle-array');
+const express = require("express");
 
-router.get('/follow/follower-names/:username', async (req, res, next) => {
+const router = express.Router();
+
+router.get('/follower-names/:username', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
@@ -18,7 +20,7 @@ router.get('/follow/follower-names/:username', async (req, res, next) => {
     }
 });
 
-router.get('/follow/follow-count/:username', async (req, res, next) => {
+router.get('/follow-count/:username', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
@@ -33,7 +35,7 @@ router.get('/follow/follow-count/:username', async (req, res, next) => {
     }
 });
 
-router.get('/follow/is-following/:followerUsername/:followingUsername', async (req, res, next) => {
+router.get('/is-following/:followerUsername/:followingUsername', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
@@ -51,7 +53,7 @@ router.get('/follow/is-following/:followerUsername/:followingUsername', async (r
     }
 });
 
-router.post('/follow/follow', async (req, res, next) => {
+router.post('/follow', async (req, res, next) => {
     if (!req.body.follower || !req.body.following) {
         next(new FollowerFailedToGetError('Missing follower or following'));
         return;
@@ -81,7 +83,7 @@ router.post('/follow/follow', async (req, res, next) => {
     }
 });
 
-router.post('/follow/unfollow', async (req, res, next) => {
+router.post('/unfollow', async (req, res, next) => {
     if (!req.body.follower || !req.body.following) {
         next(new FollowerFailedToGetError('Missing follower or following'));
         return;

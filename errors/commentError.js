@@ -30,4 +30,9 @@ class CommentFailedToDeleteError extends Error {
     }
 }
 
-module.exports = {CommentNotFoundError, CommentFailedToCreateError, CommentFailedToUpdateError, CommentFailedToDeleteError};
+module.exports = {
+    CommentNotFoundError,
+    CommentFailedToCreateError,
+    CommentFailedToUpdateError,
+    CommentFailedToDeleteError
+};

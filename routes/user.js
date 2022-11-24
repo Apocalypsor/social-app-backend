@@ -1,13 +1,14 @@
-const router = require('./index');
-
 const dbLib = require('../db/dbFunction');
 const {
     UserNotFoundError, UserFailedToUpdateError,
     UserFailedToCreateError, UserFailedToDeleteError
 } = require('../errors/userError');
 const {ObjectNotFoundError} = require("../errors/databaseError");
+const express = require("express");
 
-router.get('/user/:username', async (req, res, next) => {
+const router = express.Router();
+
+router.get('/:username', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
         const results = await dbLib.getObjectByFilter(db, 'user', {username: req.params.username});
@@ -20,7 +21,7 @@ router.get('/user/:username', async (req, res, next) => {
     }
 });
 
-router.put('/user/:username', async (req, res, next) => {
+router.put('/:username', async (req, res, next) => {
     if (!req.body) {
         next(new UserFailedToUpdateError("Missing user body"));
     }
@@ -46,7 +47,7 @@ router.put('/user/:username', async (req, res, next) => {
 });
 
 
-router.post('/user', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
         const results = await dbLib.addObject(db, 'user', req.body);
@@ -59,7 +60,7 @@ router.post('/user', async (req, res, next) => {
     }
 });
 
-router.delete('/user/:username', async (req, res, next) => {
+router.delete('/:username', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
         const results = await dbLib.deleteObjectByFilter(db, 'user', {username: req.params.username});

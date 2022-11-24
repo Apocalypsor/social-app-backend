@@ -22,21 +22,21 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api', indexRouter);
-app.use('/api', userRouter);
-app.use('/api', followerRouter);
-app.use('/api', likeRouter);
-app.use('/api', postRouter);
-app.use('/api', commentRouter);
+app.use('/api/user', userRouter);
+app.use('/api/follow', followerRouter);
+app.use('/api/like', likeRouter);
+app.use('/api/post', postRouter);
+app.use('/api/comment', commentRouter);
 
 // catch 404 and forward to errors handler
 app.use(function (req, res, next) {
-  next(createError(404));
+    next(createError(404));
 });
 
 // errors handler
 app.use((err, req, res, next) => {
-  // set locals, only providing errors in development
-  res.locals.message = err.message;
+    // set locals, only providing errors in development
+    res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   // render the errors page

@@ -17,3 +17,6 @@ Content-Type: application/json
   "userLike": "demo",
   "postId": "637eb20d15f568b242a68d1e"
 }
+
+###
+GET localhost:4000/api/like/count/637eec9aa1c162a678494f77

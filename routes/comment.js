@@ -4,7 +4,7 @@ const {CommentNotFoundError, CommentFailedToCreateError, CommentFailedToUpdateEr
 const {ObjectNotFoundError} = require("../errors/databaseError");
 
 
-router.get('/comment/post/:postId', async (req, res, next) => {
+router.get('/post/:postId', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
         const results = await dbLib.getObjectsByFilter(db, 'comment', {
@@ -20,7 +20,7 @@ router.get('/comment/post/:postId', async (req, res, next) => {
     }
 })
 
-router.get('/comment/:id', async (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
         const results = await dbLib.getObjectById(db, 'comment', req.params.id);
@@ -34,16 +34,16 @@ router.get('/comment/:id', async (req, res, next) => {
     }
 })
 
-router.post('/comment', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
-        if(req.body.postId) {
+        if (req.body.postId) {
             const results = await dbLib.addObject(db, 'comment', req.body);
             res.status(200).json({
                 success: true,
                 data: results
             });
-        }else{
+        } else {
             next(new CommentFailedToCreateError("Missing postId"));
         }
     } catch {
@@ -51,7 +51,7 @@ router.post('/comment', async (req, res, next) => {
     }
 })
 
-router.put('/comment/:id', async (req, res, next) => {
+router.put('/:id', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
         const results = await dbLib.updateObjectById(db, 'comment', req.params.id, req.body);
@@ -65,7 +65,7 @@ router.put('/comment/:id', async (req, res, next) => {
     }
 })
 
-router.delete('/comment/:id', async (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
         const results = await dbLib.deleteObjectById(db, 'comment', req.params.id);

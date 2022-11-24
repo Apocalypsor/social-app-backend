@@ -1,14 +1,16 @@
-const router = require("./index");
 const dbLib = require("../db/dbFunction");
 const {LikeFailedToGetError} = require("../errors/likeError");
+const express = require("express");
 
-router.get('/like/is-like/:likeUsername/:postId', async (req, res, next) => {
+const router = express.Router();
+
+router.get('/is-like/:likeUsername/:postId', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
         let isLike = await dbLib.getObjectByFilter(
             db, 'like',
-            {'userLike': req.params.likeUsername, 'postId': req.params.postId}
+            {userLike: req.params.likeUsername, postId: req.params.postId}
         );
 
         res.status(200).json({
@@ -16,11 +18,29 @@ router.get('/like/is-like/:likeUsername/:postId', async (req, res, next) => {
             data: !!isLike
         });
     } catch {
-        next(new LikeFailedToGetError('Failed to get following status'));
+        next(new LikeFailedToGetError('Failed to get like status'));
     }
 });
 
-router.post('/like/like', async (req, res, next) => {
+router.get('/count/:postId', async (req, res, next) => {
+    try {
+        const db = await dbLib.getDb();
+
+        const count = await dbLib.getObjectsByFilter(
+            db, 'like',
+            {postId: req.params.postId}
+        );
+
+        res.status(200).json({
+            success: true,
+            data: count.length
+        });
+    } catch {
+        next(new LikeFailedToGetError('Failed to get like status'));
+    }
+});
+
+router.post('/like', async (req, res, next) => {
     if (!req.body.postId || !req.body.userLike) {
         next(new LikeFailedToGetError('Missing required fields'));
         return;
@@ -50,7 +70,7 @@ router.post('/like/like', async (req, res, next) => {
     }
 });
 
-router.post('/like/unlike', async (req, res, next) => {
+router.post('/unlike', async (req, res, next) => {
     if (!req.body.postId || !req.body.userLike) {
         next(new LikeFailedToGetError('Missing required fields'));
         return;

@@ -6,4 +6,4 @@ class LikeFailedToGetError extends Error {
     }
 }
 
-module.exports = LikeFailedToGetError;
+module.exports = {LikeFailedToGetError};
