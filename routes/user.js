@@ -5,7 +5,7 @@ const {
     UserNotFoundError, UserFailedToUpdateError,
     UserFailedToCreateError, UserFailedToDeleteError
 } = require('../errors/userError');
-const {ObjectNotFoundError} = require("../errors/Error");
+const {ObjectNotFoundError} = require("../errors/databaseError");
 
 
 router.get('/user', async (req, res, next) => {
