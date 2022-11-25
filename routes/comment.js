@@ -1,8 +1,9 @@
-const router = require("./index");
 const dbLib = require("../db/dbFunction");
 const {CommentNotFoundError, CommentFailedToCreateError, CommentFailedToUpdateError, CommentFailedToDeleteError} = require("../errors/commentError");
 const {ObjectNotFoundError} = require("../errors/databaseError");
+const express = require("express");
 
+const router = express.Router();
 
 router.get('/post/:postId', async (req, res, next) => {
     try {

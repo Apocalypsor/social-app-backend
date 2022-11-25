@@ -62,7 +62,7 @@ router.post('/follow', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
-        let existed = await dbLib.getObjectByFilter(
+        const existed = await dbLib.getObjectByFilter(
             db, 'follow',
             {follower: req.body.follower, following: req.body.following}
         );

@@ -1,15 +1,15 @@
 GET localhost:4000/api/follow/follower-names/demo
 
 ###
-GET localhost:4000/api/follow/follower-names/demoo
+GET localhost:4000/api/follow/follower-names/Monty_Wolf
 
 ###
 POST localhost:4000/api/follow/follow
 Content-Type: application/json
 
 {
-    "follower": "demo",
-    "following": "Carmelo_Pagac1"
+  "follower": "demo",
+  "following": "Monty_Wolf"
 }
 
 ###
@@ -26,11 +26,11 @@ Content-Type: application/json
 
 {
   "follower": "demo",
-  "following": "Carmelo_Pagac1"
+  "following": "Monty_Wolf"
 }
 
 ###
-GET localhost:4000/api/follow/is-following/demo/Carmelo_Pagac1
+GET localhost:4000/api/follow/is-following/demo/Monty_Wolf
 
 ###
 GET localhost:4000/api/follow/suggestions/demo

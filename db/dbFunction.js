@@ -64,11 +64,7 @@ const getObjects = async (db, collectionName) => {
 }
 
 const getObjectByFilter = async (db, collectionName, filter) => {
-    const res = await db.collection(collectionName).findOne(handleFilter(filter));
-    if (!res) {
-        throw new ObjectNotFoundError();
-    }
-    return res;
+    return await db.collection(collectionName).findOne(handleFilter(filter));
 }
 
 const getObjectsByFilter = async (db, collectionName, filter) => {

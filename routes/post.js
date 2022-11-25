@@ -10,6 +10,21 @@ const express = require("express");
 
 const router = express.Router();
 
+// Implement the GET /post/id endpoint
+router.get('/:id', async (req, res, next) => {
+    try {
+        const db = await dbLib.getDb();
+        const results = await dbLib.getObjectById(db, 'post', req.params.id);
+
+        res.status(200).json({
+            success: true,
+            data: results
+        });
+    } catch {
+        next(new PostNotFoundError("Post not found"));
+    }
+});
+
 // Implement the GET /post/username/:username endpoint
 router.get('/username/:username', async (req, res, next) => {
     try {
@@ -23,39 +38,9 @@ router.get('/username/:username', async (req, res, next) => {
                 success: true,
                 data: results
             });
-        }else{
+        } else {
             next(new PostNotFoundError("Missing username."))
         }
-    }catch{
-        next(new PostNotFoundError("Post not found"));
-    }
-});
-
-// Implement the GET /post/id endpoint
-router.get('/:id', async (req, res, next) => {
-    try {
-        const db = await dbLib.getDb();
-        const results = await dbLib.getObjectById(db, 'post', req.params.id);
-
-        console.log("results: ", results);
-        res.status(200).json({
-            success: true,
-            data: results
-        });
-    } catch {
-       next(new PostNotFoundError("Post not found"));
-    }
-});
-
-// Implement the GET /post endpoint
-router.get('/', async (req, res, next) => {
-    try {
-        const db = await dbLib.getDb();
-        const results = await dbLib.getObjects(db, 'post');
-        res.status(200).json({
-            success: true,
-            data: results
-        });
     } catch {
         next(new PostNotFoundError("Post not found"));
     }
@@ -96,20 +81,18 @@ router.get('/page/:page', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
+        let results;
         if (req.body) {
             if (req.body instanceof Array) {
-                const results = await dbLib.addObjects(db, 'post', req.body);
-                res.status(200).json({
-                    success: true,
-                    data: results
-                });
+                results = await dbLib.addObjects(db, 'post', req.body);
             } else {
-                const results = await dbLib.addObject(db, 'post', req.body);
-                res.status(200).json({
-                    success: true,
-                    data: results
-                });
+                results = await dbLib.addObject(db, 'post', req.body);
             }
+
+            res.status(200).json({
+                success: true,
+                data: results
+            });
         }else{
             next(new PostFailedToCreateError("Missing post body"));
         }

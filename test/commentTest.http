@@ -1,10 +1,11 @@
 GET localhost:4000/api/comment/post/637eecdca1c162a6784952b5
 
 ###
-GET localhost:4000/api/comment/637f008d6b03ac9d3138241e
+GET localhost:4000/api/comment/637eecdca1c162a6784952ba
 
 ###
 POST localhost:4000/api/comment
+Content-Type: application/json
 
 {
     "username": "Monty_Wolf",
@@ -13,4 +14,4 @@ POST localhost:4000/api/comment
 }
 
 ###
-DELETE localhost:4000/api/comment/637f00d96b03ac9d3138241f
+DELETE localhost:4000/api/comment/63803444d4d61f60654ae17c
