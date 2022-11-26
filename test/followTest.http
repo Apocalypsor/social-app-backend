@@ -36,4 +36,7 @@ GET localhost:4000/api/follow/is-following/demo/Monty_Wolf
 GET localhost:4000/api/follow/suggestions/demo
 
 ###
-GET localhost:4000/api/follow/follow-count/demo
+GET localhost:4000/api/follow/follower-count/demo
+
+###
+GET localhost:4000/api/follow/following-count/demo

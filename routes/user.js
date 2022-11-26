@@ -21,6 +21,19 @@ router.get('/:username', async (req, res, next) => {
     }
 });
 
+router.get('/search/:username', async (req, res, next) => {
+    try {
+        const db = await dbLib.getDb();
+        const results = await dbLib.getObjectsByFilter(db, 'user', {username: {$regex: req.params.username}});
+        res.status(200).json({
+            success: true,
+            data: results
+        });
+    } catch {
+        next(new UserNotFoundError("User not found"));
+    }
+});
+
 router.put('/:username', async (req, res, next) => {
     if (!req.body) {
         next(new UserFailedToUpdateError("Missing user body"));

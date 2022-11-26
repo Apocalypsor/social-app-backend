@@ -8,7 +8,7 @@ POST http://localhost:4000/api/user
 Content-Type: application/json
 
 {
-  "username": "Stephanie.Adams",
+  "username": "Antonette_Renner23",
   "firstName": "Talon1",
   "lastName": "Altenwerth1",
   "email": "Casey42@gmail.com",
@@ -40,3 +40,6 @@ DELETE http://localhost:4000/api/user/Stephanie.Adams
 
 ###
 GET http://localhost:4000/api/user/Stephanie.Adams
+
+###
+GET http://localhost:4000/api/user/search/te
