@@ -42,7 +42,7 @@ router.get('/search/:username', async (req, res, next) => {
 
 router.put('/:username', async (req, res, next) => {
     if (!req.body) {
-        next(new UserFailedToUpdateError("Missing user body"));
+        return next(new UserFailedToUpdateError("Missing user body"));
     }
 
     try {

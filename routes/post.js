@@ -103,8 +103,9 @@ router.post('/', async (req, res, next) => {
 // Implement the PUT /post/id endpoint
 router.put('/:id', async (req, res, next) => {
     if (!req.body) {
-        next(new PostFailedToUpdateError("Missing post body"));
+        return next(new PostFailedToUpdateError("Missing post body"));
     }
+
     try {
         const db = await dbLib.getDb();
         const results = await dbLib.updateObjectById(db, 'post', req.params.id, req.body);

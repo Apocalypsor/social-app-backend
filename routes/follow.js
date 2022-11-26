@@ -70,8 +70,7 @@ router.get('/is-following/:followerUsername/:followingUsername', async (req, res
 
 router.post('/follow', async (req, res, next) => {
     if (!req.body.follower || !req.body.following) {
-        next(new FollowerFailedToGetError('Missing follower or following'));
-        return;
+        return next(new FollowerFailedToGetError('Missing follower or following'));
     }
 
     try {

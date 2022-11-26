@@ -42,8 +42,7 @@ router.get('/count/:postId', async (req, res, next) => {
 
 router.post('/like', async (req, res, next) => {
     if (!req.body.postId || !req.body.userLike) {
-        next(new LikeFailedToGetError('Missing required fields'));
-        return;
+        return next(new LikeFailedToGetError('Missing required fields'));
     }
 
     try {
@@ -72,8 +71,7 @@ router.post('/like', async (req, res, next) => {
 
 router.post('/unlike', async (req, res, next) => {
     if (!req.body.postId || !req.body.userLike) {
-        next(new LikeFailedToGetError('Missing required fields'));
-        return;
+        return next(new LikeFailedToGetError('Missing required fields'));
     }
 
     try {

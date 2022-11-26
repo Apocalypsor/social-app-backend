@@ -11,6 +11,7 @@ const likeRouter = require('./routes/like');
 const postRouter = require('./routes/post');
 const commentRouter = require('./routes/comment');
 const saveRouter = require('./routes/save');
+const loginRouter = require('./routes/login');
 
 const dbLib = require('./db/dbFunction');
 
@@ -38,6 +39,7 @@ app.use('/api/like', likeRouter);
 app.use('/api/post', postRouter);
 app.use('/api/comment', commentRouter);
 app.use('/api/save', saveRouter);
+app.use('/api/auth', loginRouter);
 
 // catch 404 and forward to errors handler
 app.use(function (req, res, next) {
@@ -45,6 +47,7 @@ app.use(function (req, res, next) {
 });
 
 // errors handler
+// noinspection JSUnusedLocalSymbols
 app.use((err, req, res, next) => {
     // set locals, only providing errors in development
     res.locals.message = err.message;
