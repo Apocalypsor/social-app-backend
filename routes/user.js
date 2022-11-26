@@ -1,4 +1,6 @@
 const dbLib = require('../db/dbFunction');
+const validator = require('validator');
+
 const {
     UserNotFoundError, UserFailedToUpdateError,
     UserFailedToCreateError, UserFailedToDeleteError
@@ -12,10 +14,14 @@ router.get('/:username', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
         const results = await dbLib.getObjectByFilter(db, 'user', {username: req.params.username});
-        res.status(200).json({
-            success: true,
-            data: results
-        });
+        if(results){
+            res.status(200).json({
+                success: true,
+                data: results
+            });
+        }else{
+            next(new UserNotFoundError("Wrong username"));
+        }
     } catch {
         next(new UserNotFoundError("User not found"));
     }
@@ -41,6 +47,13 @@ router.put('/:username', async (req, res, next) => {
 
     try {
         const db = await dbLib.getDb();
+        // check the req.body
+        if(!req.body.username || !req.body.password || !req.body.email){
+            next(new UserFailedToUpdateError("Missing required fields. The required filed are username, password and email"));
+        }
+
+        if(!validator.isEmail(req.body.email)) next(new UserFailedToUpdateError("Invalid email"));
+
         const result = await dbLib.updateObjectByFilter(
             db, 'user',
             {username: req.params.username}, req.body
@@ -63,6 +76,13 @@ router.put('/:username', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
+        // check the req.body
+        if(!req.body.username || !req.body.password || !req.body.email){
+            next(new UserFailedToUpdateError("Missing required fields. The required filed are username, password and email"));
+        }
+
+        if(!validator.isEmail(req.body.email)) next(new UserFailedToUpdateError("Invalid email"));
+
         const results = await dbLib.addObject(db, 'user', req.body);
         res.status(200).json({
             success: true,

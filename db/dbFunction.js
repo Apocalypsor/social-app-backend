@@ -49,18 +49,11 @@ const handleFilter = (filter) => {
 }
 
 const getObjectById = async (db, collectionName, id) => {
-    const res = await db.collection(collectionName).findOne({_id: ObjectId(id)});
-    if (!res) {
-        throw new ObjectNotFoundError(`object with id: ${id} not found`);
-    }
-    return res;
+    return await db.collection(collectionName).findOne({_id: ObjectId(id)});
 }
 
 const getObjects = async (db, collectionName) => {
-    const res = await db.collection(collectionName).find().toArray();
-    if (!res || res.length === 0) {
-        throw new ObjectNotFoundError(`no ${collectionName} found`);
-    }
+    return await db.collection(collectionName).find().toArray();
 }
 
 const getObjectByFilter = async (db, collectionName, filter) => {
@@ -68,15 +61,11 @@ const getObjectByFilter = async (db, collectionName, filter) => {
 }
 
 const getObjectsByFilter = async (db, collectionName, filter) => {
-    const res = db.collection(collectionName).find(handleFilter(filter)).toArray();
-    if (!res || res.length === 0) {
-        throw new ObjectNotFoundError();
-    }
-    return res;
+    return await db.collection(collectionName).find(handleFilter(filter)).toArray();
 }
 
 const getObjectsByFilterOptionAndPage = async (db, collectionName, filter, option, pageObj) => {
-    const res = db.collection(collectionName).find(
+    const res = await db.collection(collectionName).find(
         handleFilter(filter), option
     ).skip(pageObj.skipNum).limit(pageObj.limitNum).toArray();
 
