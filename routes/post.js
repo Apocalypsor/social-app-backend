@@ -36,7 +36,7 @@ router.get('/username/:username', async (req, res, next) => {
             results = await dbLib.getObjectsByFilter(db, 'post', {username: req.params.username});
             res.status(200).json({
                 success: true,
-                data: results
+                data: results.sort((a, b) => b.updatedAt - a.updatedAt)
             });
         } else {
             next(new PostNotFoundError("Missing username."))
@@ -66,15 +66,14 @@ router.get('/page/:page', async (req, res, next) => {
                 success: true,
                 data: results
             });
-        }else{
+        } else {
             next(new PostNotFoundError("Missing page number."));
         }
-    }catch{
-       next(new PostNotFoundError("Post not found"));
+    } catch {
+        next(new PostNotFoundError("Post not found"));
     }
 
 });
-
 
 
 // Implement the POST /post endpoint
@@ -93,10 +92,10 @@ router.post('/', async (req, res, next) => {
                 success: true,
                 data: results
             });
-        }else{
+        } else {
             next(new PostFailedToCreateError("Missing post body"));
         }
-    }catch{
+    } catch {
         next(new PostFailedToCreateError("Post failed to create."));
     }
 });
@@ -113,10 +112,10 @@ router.put('/:id', async (req, res, next) => {
             success: true,
             data: results
         });
-    }catch(err){
-        if(err instanceof ObjectNotFoundError){
+    } catch (err) {
+        if (err instanceof ObjectNotFoundError) {
             next(new PostNotFoundError("Post not found"));
-        }else{
+        } else {
             next(new PostFailedToUpdateError("Failed to update post."));
         }
     }
@@ -135,7 +134,7 @@ router.delete('/:id', async (req, res, next) => {
     } catch (err) {
         if (err instanceof ObjectNotFoundError) {
             next(new PostFailedToDeleteError("Post to be deleted not found."))
-        }else {
+        } else {
             next(new PostFailedToDeleteError("Post failed to delete."));
         }
     }

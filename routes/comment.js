@@ -14,7 +14,7 @@ router.get('/post/:postId', async (req, res, next) => {
 
         res.status(200).json({
             success: true,
-            data: results
+            data: results.sort((a, b) => a.updatedAt - b.updatedAt)
         });
     } catch {
         next(new CommentNotFoundError("Comment not found"));
