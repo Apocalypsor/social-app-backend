@@ -15,7 +15,7 @@ POST http://localhost:4000/api/post
 Content-Type: application/json
 
 {
-  "userId": "637eb20c15f568b242a68d17",
+  "username": "demo",
   "postType": 0,
   "postContent": "https://images.unsplash.com/photo-1663818796346-6bc15be05b11?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY2NTc3ODY3NA&ixlib=rb-1.2.1&q=80&w=1080",
   "description": "Molestias nobis animi commodi harum accusantium quaerat iusto itaque repellat.",
@@ -32,7 +32,7 @@ Content-Type: application/json
 
 [
   {
-    "userId": "637eb20c15f568b242a68d17",
+    "username": "demo",
     "postType": 0,
     "postContent": "https://images.unsplash.com/photo-1663818796346-6bc15be05b11?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY2NTc3ODY3NA&ixlib=rb-1.2.1&q=80&w=1080",
     "description": "Molestias nobis animi commodi harum accusantium quaerat iusto itaque repellat.",
@@ -40,7 +40,7 @@ Content-Type: application/json
     "tagging": []
   },
   {
-    "userId": "637eb20c15f568b242a68d17",
+    "username": "demo",
     "postType": 1,
     "postContent": "https://images.unsplash.com/photo-1663818796346-6bc15be05b11?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY2NTc3ODY3NA&ixlib=rb-1.2.1&q=80&w=1080",
     "description": "Molestias nobis animi commodi harum accusantium quaerat iusto itaque repellat.",
@@ -56,7 +56,7 @@ Content-Type: application/json
 
 {
   "_id": "637ef987cfcdabb76b9d8086",
-  "userId": "637eb20c15f568b242a68d17",
+  "username": "demo",
   "postType": 1,
   "postContent": "https://images.unsplash.com/photo-1663818796346-6bc15be05b11?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY2NTc3ODY3NA&ixlib=rb-1.2.1&q=80&w=1080",
   "description": "Molestias nobis animi commodi harum accusantium quaerat iusto itaque repellat.",
@@ -67,7 +67,7 @@ Content-Type: application/json
 }
 
 ###
-GET localhost:4000/api/post/638032b6f89c6d9bcc8cf302
+GET localhost:4000/api/post/63803392d9899091651f354c
 ###
 
 DELETE http://localhost:4000/api/post/638032b6f89c6d9bcc8cf302

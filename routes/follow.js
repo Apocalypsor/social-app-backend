@@ -20,7 +20,7 @@ router.get('/follower-names/:username', async (req, res, next) => {
     }
 });
 
-router.get('/follow-count/:username', async (req, res, next) => {
+router.get('/follower-count/:username', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
@@ -32,6 +32,21 @@ router.get('/follow-count/:username', async (req, res, next) => {
         });
     } catch {
         next(new FollowerFailedToGetError('Failed to get follower count'));
+    }
+});
+
+router.get('/following-count/:username', async (req, res, next) => {
+    try {
+        const db = await dbLib.getDb();
+
+        let followCount = await dbLib.getObjectsByFilter(db, 'follow', {follower: req.params.username});
+
+        res.status(200).json({
+            success: true,
+            data: followCount.length
+        });
+    } catch {
+        next(new FollowerFailedToGetError('Failed to get following count'));
     }
 });
 

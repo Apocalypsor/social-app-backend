@@ -61,11 +61,18 @@ const getObjectByFilter = async (db, collectionName, filter) => {
 }
 
 const getObjectsByFilter = async (db, collectionName, filter) => {
-    return db.collection(collectionName).find(handleFilter(filter)).toArray();
+    return await db.collection(collectionName).find(handleFilter(filter)).toArray();
 }
 
 const getObjectsByFilterOptionAndPage = async (db, collectionName, filter, option, pageObj) => {
-    return db.collection(collectionName).find(handleFilter(filter), option).skip(pageObj.skipNum).limit(pageObj.limitNum).toArray();
+    const res = await db.collection(collectionName).find(
+        handleFilter(filter), option
+    ).skip(pageObj.skipNum).limit(pageObj.limitNum).toArray();
+
+    if (!res || res.length === 0) {
+        throw new ObjectNotFoundError();
+    }
+    return res;
 }
 
 const addObject = async (db, collectionName, object) => {
@@ -120,7 +127,7 @@ const updateObjectById = async (db, collectionName, id, object) => {
 
     object.updatedAt = new Date();
     object._id = ObjectId(id);
-    let res = await db.collection(collectionName).updateOne({_id: ObjectId(id)}, {$set: object});
+    let res = await db.collection(collectionName).updateOne({_id: ObjectId(id)}, {$set: handleFilter(object)});
     if (res.matchedCount === 1) {
         object._id = ObjectId(id);
         return object;
@@ -141,7 +148,7 @@ const updateObjectByFilter = async (db, collectionName, filter, object) => {
     object.updatedAt = new Date();
     let res = await db.collection(collectionName).findOneAndUpdate(
         handleFilter(filter),
-        {$set: object}, {returnDocument: 'after'}
+        {$set: handleFilter(object)}, {returnDocument: 'after'}
     );
 
     if (res.ok === 1) {
@@ -159,7 +166,7 @@ const replaceObjectById = async (db, collectionName, id, object) => {
 
     object._id = ObjectId(id);
     object.updatedAt = new Date();
-    let res = await db.collection(collectionName).replaceOne({_id: ObjectId(id)}, object);
+    let res = await db.collection(collectionName).replaceOne({_id: ObjectId(id)}, handleFilter(object));
     if (res.matchedCount === 1) {
         return object;
     } else {
