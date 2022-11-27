@@ -1,9 +1,10 @@
 const request = require('supertest');
-const dbLib = require('../db/dbFunction');
-const webapp = require('../app');
-const {deleteObjectById} = require("../db/dbFunction");
+const dbLib = require('../../db/dbFunction');
+const serverPkg = require('../../bin/www');
+const {deleteObjectById} = require("../../db/dbFunction");
 const {ObjectId} = require("mongodb");
 
+const webapp = serverPkg.app;
 
 const endpoint = "http://localhost:4000/api/user/";
 let mongo;
@@ -74,7 +75,7 @@ describe("Test user endpoints", () => {
     test("GET /user/:username", async () => {
 
         const res = await request(webapp)
-                        .get( endpoint + `${actualUser.username}`)
+                        .get( `endpoint${actualUser.username}`)
                         .set('Accept', 'application/json');
         expect(res.headers["Content-Type"]).toMatch(/json/);
         expect(res.status).toEqual(200);
@@ -90,9 +91,8 @@ describe("Test user endpoints", () => {
         expect(res.status).toEqual(200);
         expect(res.type).toBe('application/json');
         expect(JSON.parse(res.text).data).toMatchObject(expectedResp);
-
-
     });
+
 
 
 
