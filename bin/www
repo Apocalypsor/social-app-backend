@@ -7,6 +7,7 @@
 let app = require('../app');
 let debug = require('debug')('project---backend-group-x:server');
 let http = require('http');
+const dbLib = require("../db/dbFunction");
 
 require('dotenv').config();
 
@@ -92,7 +93,9 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
-module.exports = {
-  server,
-    app
-};
+/**
+ * Connect to the database
+ */
+dbLib.connect().then(() => {
+  console.log('connected to db');
+});

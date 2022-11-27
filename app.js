@@ -13,8 +13,6 @@ const commentRouter = require('./routes/comment');
 const saveRouter = require('./routes/save');
 const loginRouter = require('./routes/login');
 
-const dbLib = require('./db/dbFunction');
-
 const app = express()
 
 // cors
@@ -59,11 +57,6 @@ app.use((err, req, res, next) => {
         success: false,
         message: err.message
     });
-});
-
-// connect to db
-dbLib.connect().then(() => {
-    console.log('connected to db');
 });
 
 module.exports = app;

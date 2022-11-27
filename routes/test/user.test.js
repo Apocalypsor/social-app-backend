@@ -1,17 +1,16 @@
 const request = require('supertest');
 const dbLib = require('../../db/dbFunction');
-const serverPkg = require('../../bin/www');
+const webapp = require('../../app');
 const {deleteObjectById} = require("../../db/dbFunction");
 const {ObjectId} = require("mongodb");
 
-const webapp = serverPkg.app;
-
-const endpoint = "http://localhost:4000/api/user/";
+const endpoint = "/api/user/";
 let mongo;
+
+require('dotenv').config();
 
 // TEST USER ENDPOINTS
 describe("Test user endpoints", () => {
-
     let res;
     let db;
     let actualUser;
@@ -31,20 +30,22 @@ describe("Test user endpoints", () => {
     beforeAll(async () => {
         mongo = await dbLib.connect('test');
         db = await dbLib.getDb();
-        res = await request(webapp)
-                    .post(endpoint)
-                    .send({
-                        username: 'testUser',
-                        password: 'testPassword',
-                        email: 'testEmail@gmail.com',
-                        firstName: 'testFirstName',
-                        lastName: 'testLastName',
-                        profilePicture: "https://ui-avatars.com/api/?rounded=true"})
-                    .set('Accept', 'application/json');
-        if(res.success){
+        res = (await request(webapp)
+            .post(endpoint)
+            .send({
+                username: 'testUser',
+                password: 'testPassword',
+                email: 'testEmail@gmail.com',
+                firstName: 'testFirstName',
+                lastName: 'testLastName',
+                profilePicture: "https://ui-avatars.com/api/?rounded=true"
+            })
+            .set('Accept', 'application/json'))._body;
+
+        if (res.success) {
             actualUser = res.data;
             console.log("actualUser: ", JSON.stringify(actualUser));
-        }else{
+        } else {
             console.log("Failed to create test user");
         }
     });
@@ -52,8 +53,7 @@ describe("Test user endpoints", () => {
     afterAll(async () => {
        await clearDatabase();
         try {
-            await mongo.close(); // close the mongo connection
-            await dbLib.close();  // Close the connection to the database
+            await dbLib.close();  // close the connection to the database
         } catch (err) {
             return err;
         }
@@ -73,24 +73,25 @@ describe("Test user endpoints", () => {
     };
 
     test("GET /user/:username", async () => {
-
         const res = await request(webapp)
-                        .get( `endpoint${actualUser.username}`)
-                        .set('Accept', 'application/json');
-        expect(res.headers["Content-Type"]).toMatch(/json/);
+            .get(endpoint + `${actualUser.username}`)
+            .set('Accept', 'application/json');
+
+        expect(res.header["content-type"]).toMatch(/json/);
         expect(res.status).toEqual(200);
         expect(res.type).toBe('application/json');
-        expect(JSON.parse(res.text).data).toMatchObject(expectedResp);
+        expect(res._body).toMatchObject(expectedResp);
     });
 
-    test("GET /user/search/:username", () => {
-        const res = request(webapp)
-                    .get(endpoint + `/search/${actualUser.username}`)
-                    .set('Accept', 'application/json');
-        expect(res.headers["Content-Type"]).toMatch(/json/);
+    test("GET /user/search/:username", async () => {
+        const res = await request(webapp)
+            .get(endpoint + `search/${actualUser.username}`)
+            .set('Accept', 'application/json');
+
+        expect(res.header["content-type"]).toMatch(/json/);
         expect(res.status).toEqual(200);
         expect(res.type).toBe('application/json');
-        expect(JSON.parse(res.text).data).toMatchObject(expectedResp);
+        expect(res._body.data[0]).toMatchObject(expectedUser);
     });
 
 
