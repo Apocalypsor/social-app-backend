@@ -7,7 +7,6 @@ const {ObjectId} = require("mongodb");
 const endpoint = "/api/user/";
 let mongo;
 
-require('dotenv').config();
 
 // TEST USER ENDPOINTS
 describe("Test user endpoints", () => {
