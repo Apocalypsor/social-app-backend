@@ -35,6 +35,19 @@ describe('Test the post endpoints', () => {
     });
 
     beforeEach(async () => {
+        const user = {
+            username: "demo",
+            password: "password",
+            email: "email@gmail.com",
+            firstName: "first",
+            lastName: "last",
+            profilePicture: "https://ui-avatars.com/api/?rounded=true"
+        }
+
+        // Create a user.
+        const userResp = await db.collection('user').insertOne(user);
+        // console.log("user:" + JSON.stringify(userResp));
+
         res = (await request(webapp)
             .post(endpoint)
             .send(expectedPost)
@@ -50,13 +63,14 @@ describe('Test the post endpoints', () => {
     });
 
     afterEach(async () => {
-        const deleteRes = await db.collection('post').findOneAndDelete({_id: ObjectId(postId)});
+        const deleteRes = await db.collection('post').deleteMany({});
+        const deleteRes2 = await db.collection('user').deleteMany({});
         if(deleteRes.ok !== 1){
             console.log("Error in deleting post");
         }
     });
 
-
+    // Test the GET /post/:id endpoint
     test('GET /post/:id', async () => {
 
         res = (await request(webapp)
@@ -79,6 +93,7 @@ describe('Test the post endpoints', () => {
 
     });
 
+    // Test GET /post/username/:username
     test('GET /post/username/:username', async () => {
         const res = (await request(webapp)
             .get(endpoint + 'username/' + post.username)
@@ -101,6 +116,16 @@ describe('Test the post endpoints', () => {
 
     // Test GET /post/page/:page endpoint
     test('GET /post/page/:page', async () => {
+        const user2 = {
+            username: "demo2",
+            password: "password",
+            email: "email@gmail.com",
+            firstName: "first",
+            lastName: "last",
+            profilePicture: "https://ui-avatars.com/api/?rounded=true"
+        }
+        const userResp = await db.collection('user').insertOne(user2);
+
         const secondObj = {
             username: "demo2",
             postType: 1,
@@ -114,6 +139,8 @@ describe('Test the post endpoints', () => {
             .send(secondObj)
             .set('Accept', 'application/json'));
 
+        console.log("putRes: ", putRes._body.data);
+
         const getRes = (await request(webapp)
             .get(endpoint + 'page/1')
             .set('Accept', 'application/json'));
@@ -121,6 +148,7 @@ describe('Test the post endpoints', () => {
         // Type and status checking
         expect(getRes.status).toBe(200);
         expect(getRes.type).toBe('application/json');
+
 
         // Response body checking
         expect(getRes._body.success).toBe(true);
@@ -134,10 +162,7 @@ describe('Test the post endpoints', () => {
         expect(tmpRes.status).toBe(500);
 
 
-        // Delete the data
-        const deleteRes1 = await db.collection('post').findOneAndDelete({_id: ObjectId(putRes._body.data._id.toString())});
     });
-
 
     // Test POST /post endpoint
     test('POST /post', async () => {

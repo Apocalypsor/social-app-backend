@@ -56,8 +56,8 @@ describe('Test the follow endpoints', () => {
 
     afterEach(async () => {
         // delete the two users
-        const user1DeleteRes = await db.collection('user').findOneAndDelete({username: "testUser1"});
-        const user2DeleteRes = await db.collection('user').findOneAndDelete({username: "testUser2"});
+        const userDeleteRes = await db.collection('user').deleteMany({});
+        const followDeleteRes = await db.collection('follow').deleteMany({});
     });
 
     // Test follow endpoint

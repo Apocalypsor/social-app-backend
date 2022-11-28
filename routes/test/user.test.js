@@ -152,12 +152,7 @@ describe("Test user endpoints", () => {
         expect(tmpRes.status).toBe(500);
     });
 
-
-    /**
-     * Test PUT /user/:username endpoint
-     * */
-
-
+    // Test PUT /user/:username endpoint
     test("PUT /user/:username", async () => {
 
         const postRes = (await request(webapp)

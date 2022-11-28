@@ -8,6 +8,10 @@ router.get('/is-like/:likeUsername/:postId', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
+        const username = await dbLib.getObjectByFilter(db, 'user', {username: req.params.likeUsername});
+        const post = await dbLib.getObjectByFilter(db, 'post', {_id: req.params.postId});
+        if(!username || !post) return next(new LikeFailedToGetError('Username or post does not exist'));
+
         let isLike = await dbLib.getObjectByFilter(
             db, 'like',
             {userLike: req.params.likeUsername, postId: req.params.postId}
@@ -25,6 +29,9 @@ router.get('/is-like/:likeUsername/:postId', async (req, res, next) => {
 router.get('/count/:postId', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
+
+        const post = await dbLib.getObjectByFilter(db, 'post', {_id: req.params.postId});
+        if(!post) return next(new LikeFailedToGetError('Post does not exist'));
 
         const count = await dbLib.getObjectsByFilter(
             db, 'like',
@@ -47,6 +54,10 @@ router.post('/like', async (req, res, next) => {
 
     try {
         const db = await dbLib.getDb();
+
+        const post = await dbLib.getObjectByFilter(db, 'post', {_id: req.body.postId});
+        const username = await dbLib.getObjectByFilter(db, 'user', {username: req.body.userLike});
+        if(!post || !username) return next(new LikeFailedToGetError('Post or username does not exist'));
 
         let existed = await dbLib.getObjectByFilter(
             db, 'like',
@@ -77,6 +88,11 @@ router.post('/unlike', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
+        const post = await dbLib.getObjectByFilter(db, 'post', {_id: req.body.postId});
+        const username = await dbLib.getObjectByFilter(db, 'user', {username: req.body.userLike});
+        if(!post || !username) return next(new LikeFailedToGetError('Post or username does not exist'));
+
+
         let existed = await dbLib.getObjectByFilter(
             db, 'like',
             {postId: req.body.postId, userLike: req.body.userLike}
@@ -84,6 +100,8 @@ router.post('/unlike', async (req, res, next) => {
 
         if (existed) {
             await dbLib.deleteObjectById(db, 'like', existed._id);
+        }else{
+            return next(new LikeFailedToGetError('Post is not liked'));
         }
 
         res.status(200).json({

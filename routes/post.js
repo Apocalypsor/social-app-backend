@@ -31,6 +31,10 @@ router.get('/username/:username', async (req, res, next) => {
         // get the data from the db
         const db = await dbLib.getDb();
 
+        // check username exist in database
+        const userResp = await dbLib.getObjectByFilter(db, 'user', {username: req.params.username});
+        if(!userResp) return next(new PostNotFoundError("Username not found"));
+
         let results;
         if (req.params.username) {
             results = await dbLib.getObjectsByFilter(db, 'post', {username: req.params.username});
@@ -83,9 +87,20 @@ router.post('/', async (req, res, next) => {
         let results;
         if (req.body) {
             if (req.body instanceof Array) {
+                const username = req.body[0].username;
+                const userResp = await dbLib.getObjectByFilter(db, 'user', {username: username});
+                if(!userResp) return next(new PostFailedToCreateError("Username not found"));
+
+                for(let postItem of req.body) {
+                    if(postItem.username !== username) return next(new PostFailedToCreateError("Username should be the same"));
+                }
+
                 results = await dbLib.addObjects(db, 'post', req.body);
             } else {
-                if(Object.keys(req.body).length === 0) next(new PostFailedToCreateError("Missing post body"));
+                if(Object.keys(req.body).length === 0) return next(new PostFailedToCreateError("Missing post body"));
+                const userResp = await dbLib.getObjectByFilter(db, 'user', {username: req.body.username});
+                if(!userResp) return next(new PostFailedToCreateError("Username not found"));
+
                 results = await dbLib.addObject(db, 'post', req.body);
             }
 
