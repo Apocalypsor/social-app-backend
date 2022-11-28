@@ -91,9 +91,9 @@ describe("Test user endpoints", () => {
         expect(res.type).toBe('application/json');
         expect(res._body).toMatchObject(expectedResp);
 
-        // Test wrong username. No need?
+        // Test no username.
         const tmpRes = await request(webapp)
-            .get(endpoint + 'wrongUsername')
+            .get(endpoint + '')
             .set('Accept', 'application/json');
         expect(tmpRes.status).toEqual(404);
     });
@@ -111,6 +111,10 @@ describe("Test user endpoints", () => {
         expect(res._body.data[0]).toMatchObject(expectedUser);
 
         // No need to test Wrong Username.
+        const tmpRes = await request(webapp)
+            .get(endpoint + 'search/')
+            .set('Accept', 'application/json');
+        expect(tmpRes.status).toEqual(404);
     });
 
     /**
@@ -294,8 +298,4 @@ describe("Test user endpoints", () => {
         const deletedUser = await db.collection('user').findOne({_id: putDeleteUserId});
         expect(deletedUser).toBeNull();
     });
-
-
-
-
 })

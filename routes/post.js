@@ -85,6 +85,7 @@ router.post('/', async (req, res, next) => {
             if (req.body instanceof Array) {
                 results = await dbLib.addObjects(db, 'post', req.body);
             } else {
+                if(Object.keys(req.body).length === 0) next(new PostFailedToCreateError("Missing post body"));
                 results = await dbLib.addObject(db, 'post', req.body);
             }
 
@@ -102,7 +103,7 @@ router.post('/', async (req, res, next) => {
 
 // Implement the PUT /post/id endpoint
 router.put('/:id', async (req, res, next) => {
-    if (!req.body) {
+    if (!req.body || Object.keys(req.body).length === 0) {
         return next(new PostFailedToUpdateError("Missing post body"));
     }
 
