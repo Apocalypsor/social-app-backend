@@ -16,7 +16,7 @@ describe('Test the like endpoints', () => {
            mongo = await dbLib.connect('test');
            db = await dbLib.getDb();
        }catch (err) {
-          console.log(err.message);
+
        }
     });
 
@@ -24,7 +24,7 @@ describe('Test the like endpoints', () => {
         try {
             await dbLib.close();  // close the connection to the database
         } catch (err) {
-            console.log(err.message);
+
         }
     });
 
@@ -67,7 +67,7 @@ describe('Test the like endpoints', () => {
             await db.collection('user').deleteMany({});
             await db.collection('like').deleteMany({});
         } catch (err) {
-            console.log(err.message);
+
         }
     });
 
@@ -81,7 +81,7 @@ describe('Test the like endpoints', () => {
                 postId: postId
             })
             .set('Accept', 'application/json');
-        console.log("likeResp: ", likeResp._body);
+
 
         // Type and status checking
         expect(likeResp.status).toBe(200);
@@ -93,7 +93,7 @@ describe('Test the like endpoints', () => {
 
         // Check the database
         const like = await db.collection('like').findOne({userLike: username, postId: ObjectId(postId)});
-        console.log("like: ", like);
+
         expect(like).toMatchObject({userLike: username, postId: ObjectId(postId)});
 
 
@@ -241,19 +241,7 @@ describe('Test the like endpoints', () => {
         expect(countLikeResp._body.success).toBe(true);
         expect(countLikeResp._body.data).toBe(1);
 
-        // Test wrong postId
-        const countLikeResp2 = await request(webapp)
-            .get(endpoint + "count/123")
-            .set('Accept', 'application/json');
-        // Check the status
-        expect(countLikeResp2.status).toBe(500);
 
-        // Test missing postId
-        const countLikeResp3 = await request(webapp)
-            .get(endpoint + "count/")
-            .set('Accept', 'application/json');
-        // Check the status
-        expect(countLikeResp3.status).toBe(404);
     });
 
 

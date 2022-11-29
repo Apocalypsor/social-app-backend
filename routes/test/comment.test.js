@@ -1,8 +1,6 @@
 const request = require('supertest');
 const dbLib = require('../../db/dbFunction');
 const webapp = require('../../app');
-const {deleteObjectById} = require("../../db/dbFunction");
-const {ObjectId} = require("mongodb");
 
 const endpoint = "/api/comment/";
 let mongo;
@@ -12,6 +10,7 @@ describe("Test the comment endpoints", () => {
     let res;
     let db;
     let postId;
+    let commentId;
     let commentResp;
     let userId;
 
@@ -66,7 +65,6 @@ describe("Test the comment endpoints", () => {
         // Create a user.
         const userResp = await db.collection('user').insertOne(user);
         const commentUserResp = await db.collection('user').insertOne(commentUser);
-        // console.log("user:" + JSON.stringify(userResp));
 
         // Create a post.
         res = (await request(webapp)
@@ -74,19 +72,19 @@ describe("Test the comment endpoints", () => {
             .send(post)
             .set('Accept', 'application/json'));
 
+
         postId = res._body.data._id.toString();
 
-        console.log("userResp: ", userResp);
 
         userId = userResp.insertedId.toString();
 
         // Post a comment
         commentResp = (await request(webapp)
             .post(endpoint)
-            .send({postId: postId, comment: comment, username:commentUser.username})
+            .send({postId: postId, comment: comment, username: commentUser.username})
             .set('Accept', 'application/json'));
+        commentId = commentResp._body.data._id.toString();
 
-        // console.log("commentResp: ", commentResp);
     });
 
     afterEach(async () => {
@@ -102,7 +100,6 @@ describe("Test the comment endpoints", () => {
     // Test the POST /api/comment endpoint
     test("Test POST /api/comment", async () => {
 
-        // console.log("commentResp: ", commentResp._body);
 
         // Type and status check
         expect(commentResp.status).toBe(200);
@@ -135,7 +132,53 @@ describe("Test the comment endpoints", () => {
 
     });
 
+    test("Test POST /api/comment/post", async () => {
 
+
+        // Type and status check
+
+        // Test if wrong postId or username
+        const res = (await request(webapp)
+            .get(endpoint + `${postId}/`)
+            .set('Accept', 'application/json'));
+
+        // Type and status check
+        expect(res.status).toBe(200);
+
+        const res2 = (await request(webapp)
+            .get(endpoint + `postId/`)
+            .set('Accept', 'application/json'));
+
+        // Type and status check
+        expect(res2.status).toBe(404);
+
+        // Test missing postId or username
+
+
+    });
+
+
+    test("Test DELETE /api/comment/", async () => {
+
+
+        // Type and status check
+
+        // Test if wrong postId or username
+        const res = (await request(webapp)
+            .delete(endpoint + `${commentId}/`)
+            .set('Accept', 'application/json'));
+
+        // Type and status check
+        expect(res.status).toBe(200);
+
+        const res2 = (await request(webapp)
+            .delete(endpoint + `commentId/`)
+            .set('Accept', 'application/json'));
+
+        // Type and status check
+        expect(res2.status).toBe(500);
+
+    });
 
 
 });

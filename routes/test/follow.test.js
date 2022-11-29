@@ -157,10 +157,7 @@ describe('Test the follow endpoints', () => {
         expect(followRes).toMatchObject({following: "testUser2", follower: "testUser1"});
 
         // Test the wrong username
-        const tmpRes = (await request(webapp)
-            .get(endpoint + 'follower-names/testUser3')
-            .set('Accept', 'application/json'));
-        expect(tmpRes.status).toEqual(500);
+
 
         // Test the missing username
         const tmpRes2 = (await request(webapp)
@@ -303,11 +300,7 @@ describe('Test the follow endpoints', () => {
 
         // Following count check
         // Test wrong username
-        const followingCountResp5 = (await request(webapp)
-            .get(endpoint + 'following-count/testUser3')
-            .set('Accept', 'application/json'));
-        // Type check
-        expect(followingCountResp5.status).toEqual(500);
+
 
         // Test missing username
         const followingCountResp6 = (await request(webapp)
@@ -317,13 +310,6 @@ describe('Test the follow endpoints', () => {
         expect(followingCountResp6.status).toEqual(404);
 
         // Follower count check
-        // Test wrong username
-        const followerCountResp5 = (await request(webapp)
-            .get(endpoint + 'follower-count/testUser3')
-            .set('Accept', 'application/json'));
-        // Type check
-        expect(followerCountResp5.status).toEqual(500);
-
         // Test missing username
         const followerCountResp6 = (await request(webapp)
             .get(endpoint + 'follower-count/')
@@ -365,12 +351,6 @@ describe('Test the follow endpoints', () => {
         expect(isFollowingResp2._body.success).toEqual(true);
         expect(isFollowingResp2._body.data).toEqual(false);
 
-        // Test wrong username
-        const isFollowingResp3 = (await request(webapp)
-            .get(endpoint + 'is-following/testUser3/testUser1')
-            .set('Accept', 'application/json'));
-        // Type check
-        expect(isFollowingResp3.status).toEqual(500);
 
         // Test missing username
         const isFollowingResp4 = (await request(webapp)
@@ -482,7 +462,7 @@ describe('Test the follow endpoints', () => {
         expect(followSuggestionsResp1.status).toEqual(200);
         expect(followSuggestionsResp1.type).toEqual('application/json');
 
-        console.log(followSuggestionsResp1._body.data);
+
         // Response check
         expect(followSuggestionsResp1._body.success).toEqual(true);
         expect(followSuggestionsResp1._body.data.length).toEqual(0);
@@ -518,13 +498,6 @@ describe('Test the follow endpoints', () => {
         expect(followSuggestionsResp3._body.success).toEqual(true);
         expect(followSuggestionsResp3._body.data.length).toEqual(1);
         expect(followSuggestionsResp3._body.data[0]).toEqual("testUser1");
-
-        // Test the wrong username
-        const followSuggestionsResp4 = (await request(webapp)
-            .get(endpoint + 'suggestions/wrongUsername')
-            .set('Accept', 'application/json'));
-        // Type check
-        expect(followSuggestionsResp4.status).toEqual(500);
 
         // Test the missing username
         const followSuggestionsResp5 = (await request(webapp)

@@ -10,10 +10,6 @@ router.get('/follower-names/:username', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
-        // Check if the follower and following exist
-        const following = await dbLib.getObjectByFilter(db, 'user', {username: req.params.username});
-        if(!following) return next(new FollowerFailedToGetError('Following name does not exist'));
-
         let followerNames = await dbLib.getObjectsByFilter(db, 'follow', {following: req.params.username});
 
         res.status(200).json({
@@ -28,11 +24,6 @@ router.get('/follower-names/:username', async (req, res, next) => {
 router.get('/follower-count/:username', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
-
-        // Check if the follower and following exist
-        const follower = await dbLib.getObjectByFilter(db, 'user', {username: req.params.username});
-        if(!follower) return next(new FollowerFailedToGetError('Username does not exist'));
-
 
         let followCount = await dbLib.getObjectsByFilter(db, 'follow', {following: req.params.username});
 
@@ -49,10 +40,6 @@ router.get('/following-count/:username', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
-        const following = await dbLib.getObjectByFilter(db, 'user', {username: req.params.username});
-        if(!following) return next(new FollowerFailedToGetError('Username does not exist'));
-
-
         let followCount = await dbLib.getObjectsByFilter(db, 'follow', {follower: req.params.username});
 
         res.status(200).json({
@@ -67,12 +54,6 @@ router.get('/following-count/:username', async (req, res, next) => {
 router.get('/is-following/:followerUsername/:followingUsername', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
-
-        // Check if the follower and following exist
-        const follower = await dbLib.getObjectByFilter(db, 'user', {username: req.params.followerUsername});
-        const following = await dbLib.getObjectByFilter(db, 'user', {username: req.params.followingUsername});
-        if(!follower || !following) return next(new FollowerFailedToGetError('Follower or following does not exist'));
-
 
         let isFollowing = await dbLib.getObjectByFilter(
             db, 'follow',
@@ -160,8 +141,6 @@ router.get('/suggestions/:username', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
-        const username = await dbLib.getObjectByFilter(db, 'user', {username: req.params.username});
-        if(!username) return next(new FollowerFailedToGetError('Username does not exist'));
 
 
         const finalArray = [];

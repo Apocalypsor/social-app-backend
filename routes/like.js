@@ -8,10 +8,6 @@ router.get('/is-like/:likeUsername/:postId', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
-        const username = await dbLib.getObjectByFilter(db, 'user', {username: req.params.likeUsername});
-        const post = await dbLib.getObjectByFilter(db, 'post', {_id: req.params.postId});
-        if(!username || !post) return next(new LikeFailedToGetError('Username or post does not exist'));
-
         let isLike = await dbLib.getObjectByFilter(
             db, 'like',
             {userLike: req.params.likeUsername, postId: req.params.postId}
@@ -29,9 +25,6 @@ router.get('/is-like/:likeUsername/:postId', async (req, res, next) => {
 router.get('/count/:postId', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
-
-        const post = await dbLib.getObjectByFilter(db, 'post', {_id: req.params.postId});
-        if(!post) return next(new LikeFailedToGetError('Post does not exist'));
 
         const count = await dbLib.getObjectsByFilter(
             db, 'like',

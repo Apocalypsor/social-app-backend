@@ -42,13 +42,12 @@ describe("Test user endpoints", () => {
             .set('Accept', 'application/json'));
         // res = JSON.parse(res.text);
 
-        // console.log("res" + JSON.stringify(res));
 
         if (res._body.success) {
             actualUser = res._body.data;
-            console.log("actualUser: ", JSON.stringify(actualUser));
+
         } else {
-            console.log("Failed to create test user");
+
         }
     });
 
@@ -68,9 +67,9 @@ describe("Test user endpoints", () => {
                 actualUser._id = actualUser._id.toString();
             }
             const result = await deleteObjectById(db, 'user', actualUser._id);
-            console.log('result', result);
+
         } catch (err) {
-            console.log('error', err.message);
+
         }
     };
 
@@ -84,7 +83,7 @@ describe("Test user endpoints", () => {
             .get(endpoint + `${actualUser.username}`)
             .set('Accept', 'application/json');
 
-        // console.log("res: ", res);
+
         expect(res.header["content-type"]).toMatch(/json/);
         expect(res.status).toEqual(200);
         expect(res.type).toBe('application/json');

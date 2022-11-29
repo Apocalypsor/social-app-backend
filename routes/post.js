@@ -31,10 +31,6 @@ router.get('/username/:username', async (req, res, next) => {
         // get the data from the db
         const db = await dbLib.getDb();
 
-        // check username exist in database
-        const userResp = await dbLib.getObjectByFilter(db, 'user', {username: req.params.username});
-        if(!userResp) return next(new PostNotFoundError("Username not found"));
-
         let results;
         if (req.params.username) {
             results = await dbLib.getObjectsByFilter(db, 'post', {username: req.params.username});

@@ -44,9 +44,8 @@ describe('Test the post endpoints', () => {
             profilePicture: "https://ui-avatars.com/api/?rounded=true"
         }
 
-        // Create a user.
+        // Create a user..lo
         const userResp = await db.collection('user').insertOne(user);
-        // console.log("user:" + JSON.stringify(userResp));
 
         res = (await request(webapp)
             .post(endpoint)
@@ -56,9 +55,9 @@ describe('Test the post endpoints', () => {
         if(res._body.success){
             post = res._body.data;
             postId = post._id.toString();
-            console.log("post: ", post);
+
         }else{
-             console.log("Error in creating post");
+
         }
     });
 
@@ -66,7 +65,7 @@ describe('Test the post endpoints', () => {
         const deleteRes = await db.collection('post').deleteMany({});
         const deleteRes2 = await db.collection('user').deleteMany({});
         if(deleteRes.ok !== 1){
-            console.log("Error in deleting post");
+
         }
     });
 
@@ -107,11 +106,6 @@ describe('Test the post endpoints', () => {
         expect(res._body.success).toBe(true);
         expect(res._body.data[0]).toMatchObject(expectedPost);
 
-        // Test missing username
-        const tmpRes = (await request(webapp)
-                    .get(endpoint + 'username/' + "")
-                    .set('Accept', 'application/json'));
-        expect(tmpRes.status).toBe(500);
     });
 
     // Test GET /post/page/:page endpoint
@@ -139,7 +133,6 @@ describe('Test the post endpoints', () => {
             .send(secondObj)
             .set('Accept', 'application/json'));
 
-        console.log("putRes: ", putRes._body.data);
 
         const getRes = (await request(webapp)
             .get(endpoint + 'page/1')
@@ -155,11 +148,6 @@ describe('Test the post endpoints', () => {
         expect(getRes._body.data[1]).toMatchObject(expectedPost);
         expect(getRes._body.data[0]).toMatchObject(secondObj);
 
-        // Test missing page
-        const tmpRes = (await request(webapp)
-                    .get(endpoint + 'page/' + "")
-                    .set('Accept', 'application/json'));
-        expect(tmpRes.status).toBe(500);
 
 
     });
@@ -256,7 +244,7 @@ describe('Test the post endpoints', () => {
 
         // Response body checking
         expect(deleteRes._body.success).toBe(true);
-        console.log("deleteRes._body.data", deleteRes._body.data);
+
 
         // Test wrong id
         const tmpRes = (await request(webapp)

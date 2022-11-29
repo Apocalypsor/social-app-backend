@@ -10,9 +10,6 @@ router.get('/post/:postId', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
-        const post = await dbLib.getObjectByFilter(db, 'post', {_id: req.params.postId});
-        if(!post) return next(new CommentNotFoundError('Post does not exist'));
-
         const results = await dbLib.getObjectsByFilter(db, 'comment', {
             postId: req.params.postId
         });
