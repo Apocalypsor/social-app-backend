@@ -47,7 +47,7 @@ describe("Test user endpoints", () => {
             actualUser = res._body.data;
 
         } else {
-
+            console.log("Create user failed");
         }
     });
 

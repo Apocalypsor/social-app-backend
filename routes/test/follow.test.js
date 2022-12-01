@@ -365,7 +365,6 @@ describe('Test the follow endpoints', () => {
 
     // Test /follow/suggestions/:username endpoint
     test('Test /follow/suggestions/:username endpoint', async () => {
-
         //Set up users and following map
         const user3 = {
             username: "testUser3",
@@ -512,7 +511,7 @@ describe('Test the follow endpoints', () => {
         // Delete relationship
         const deleteResp1 = db.collection('follow').deleteMany({follower: "testUser1"});
         const deleteResp2 = db.collection('follow').deleteMany({follower: "testUser2"});
-    });
+    }, 10000);
 
 
 });
