@@ -1,13 +1,83 @@
 const request = require('supertest');
 const dbLib = require('../../db/dbFunction');
 const webapp = require('../../app');
-const {deleteObjectById} = require("../../db/dbFunction");
-const {ObjectId} = require("mongodb");
+const jwt = require("jsonwebtoken");
+const {jwtSecret} = require('../login');
 
-const endpoint = "/api/comment/";
+const endpoint = "/api/auth/";
 let mongo;
 
-// TEST comment endpoints
-// describe("Test the comment endpoints", () => {
-//
-// });
+// TEST login endpoints
+describe("Test the login endpoints", () => {
+    let db;
+
+    beforeAll(async () => {
+        try {
+            mongo = await dbLib.connect('test');
+            db = await dbLib.getDb();
+        } catch (err) {
+            return err;
+        }
+    });
+    afterAll(async () => {
+        try {
+            await dbLib.close();
+        } catch (err) {
+            return err;
+        }
+    });
+
+    beforeEach(async () => {
+        const user1 = {
+            username: "testUser1",
+            password: 'testPassword1',
+            email: 'testEmail1@gmail.com',
+            firstName: 'testFirstName1',
+            lastName: 'testLastName1',
+            profilePicture: "https://ui-avatars.com/api/?rounded=true"
+        };
+
+        const user1Resp = await request(webapp)
+            .post('/api/user')
+            .send(user1)
+            .set('Accept', 'application/json');
+        // check database
+        const user1Db = await dbLib.getObjectByFilter(db, 'user', {username: user1.username});
+        expect(user1Db).not.toBeNull();
+    });
+
+    afterEach(async () => {
+        await db.collection('user').deleteMany({});
+    });
+
+    test("Test /login endpoint", async () => {
+        const loginInfo = {
+            username: "testUser1",
+            password: 'testPassword1'
+        };
+
+        const resp = await request(webapp)
+            .post(endpoint + 'login')
+            .send(loginInfo)
+            .set('Accept', 'application/json');
+
+        // console.log(resp._body);
+
+        // type check
+        expect(resp.status).toBe(200);
+
+        // response body check
+        expect(resp.body.success).toBe(true);
+        expect(resp.body.data.profilePicture).toBe("https://ui-avatars.com/api/?rounded=true");
+
+        jwt.verify(resp._body.data.token, jwtSecret);
+
+
+        // Test wrong password
+        const loginInfo2 = {
+            username: "testUser1",
+            password: 'wrongPassword',
+        }
+
+    });
+});

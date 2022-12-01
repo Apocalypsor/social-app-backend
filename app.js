@@ -11,7 +11,7 @@ const likeRouter = require('./routes/like');
 const postRouter = require('./routes/post');
 const commentRouter = require('./routes/comment');
 const saveRouter = require('./routes/save');
-const loginRouter = require('./routes/login');
+const {loginRouter} = require('./routes/login');
 
 const app = express()
 
