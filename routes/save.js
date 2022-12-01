@@ -34,10 +34,16 @@ router.post('/one', upload.single('file'), async (req, res, next) => {
             next(new SaveFileError("File not found"));
             return;
         }
+
+        const resp = {
+            filename: file.filename,
+            type: file.mimetype.startsWith('image/') ? 0 : 1,
+        }
+
         res.status(200).json({
             status: "success",
             data: {
-                file: file
+                file: resp
             }
         });
     } catch (e) {
