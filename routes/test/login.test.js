@@ -1,10 +1,10 @@
 const request = require('supertest');
 const dbLib = require('../../db/dbFunction');
 const webapp = require('../../app');
-const {deleteObjectById} = require("../../db/dbFunction");
-const {ObjectId} = require("mongodb");
+const jwt = require("jsonwebtoken");
+const {jwtSecret} = require('../login');
 
-const endpoint = "/api/comment/";
+const endpoint = "/api/auth/";
 let mongo;
 
 // TEST login endpoints
