@@ -124,13 +124,13 @@ const updateObjectById = async (db, collectionName, id, object) => {
     if (object._id) {
         delete object._id;
     }
-
+    console.log("id: "+ id);
     object.updatedAt = new Date();
     object._id = ObjectId(id);
-    let res = await db.collection(collectionName).updateOne({_id: ObjectId(id)}, {$set: handleFilter(object)});
-    if (res.matchedCount === 1) {
-        object._id = ObjectId(id);
-        return object;
+    let res = await db.collection(collectionName).findOneAndUpdate({_id: ObjectId(id)}, {$set: handleFilter(object)}, {returnDocument: 'after'});
+    console.log("dbFun res: " + JSON.stringify(res));
+    if (res.ok === 1) {
+        return res.value;
     } else {
         throw new ObjectNotFoundError();
     }

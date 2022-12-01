@@ -11,6 +11,7 @@ router.get('/follower-names/:username', async (req, res, next) => {
         const db = await dbLib.getDb();
 
         let followerNames = await dbLib.getObjectsByFilter(db, 'follow', {following: req.params.username});
+
         res.status(200).json({
             success: true,
             data: followerNames.map(user => user.follower)
@@ -76,6 +77,12 @@ router.post('/follow', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
+        // Check if the follower and following exist
+        const follower = await dbLib.getObjectByFilter(db, 'user', {username: req.body.follower});
+        const following = await dbLib.getObjectByFilter(db, 'user', {username: req.body.following});
+        if(!follower || !following) return next(new FollowerFailedToGetError('Follower or following does not exist'));
+
+
         const existed = await dbLib.getObjectByFilter(
             db, 'follow',
             {follower: req.body.follower, following: req.body.following}
@@ -106,6 +113,12 @@ router.post('/unfollow', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
+        // Check if the follower and following exist
+        const follower = await dbLib.getObjectByFilter(db, 'user', {username: req.body.follower});
+        const following = await dbLib.getObjectByFilter(db, 'user', {username: req.body.following});
+        if(!follower || !following) return next(new FollowerFailedToGetError('Follower or following does not exist'));
+
+
         let existed = await dbLib.getObjectByFilter(
             db, 'follow',
             {follower: req.body.follower, following: req.body.following}
@@ -127,6 +140,8 @@ router.post('/unfollow', async (req, res, next) => {
 router.get('/suggestions/:username', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
+
+
 
         const finalArray = [];
         const checkId = new Set();

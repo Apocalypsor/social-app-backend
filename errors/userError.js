@@ -6,6 +6,14 @@ class UserNotFoundError extends Error {
   }
 }
 
+class UserFailedToGetError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'UserFailedToGetError';
+        this.status = 500;
+    }
+}
+
 class UserFailedToUpdateError extends Error {
     constructor(message) {
         super(message);
@@ -34,5 +42,6 @@ module.exports = {
     UserNotFoundError,
     UserFailedToUpdateError,
     UserFailedToCreateError,
-    UserFailedToDeleteError
+    UserFailedToDeleteError,
+    UserFailedToGetError,
 };

@@ -83,8 +83,20 @@ router.post('/', async (req, res, next) => {
         let results;
         if (req.body) {
             if (req.body instanceof Array) {
+                const username = req.body[0].username;
+                const userResp = await dbLib.getObjectByFilter(db, 'user', {username: username});
+                if(!userResp) return next(new PostFailedToCreateError("Username not found"));
+
+                for(let postItem of req.body) {
+                    if(postItem.username !== username) return next(new PostFailedToCreateError("Username should be the same"));
+                }
+
                 results = await dbLib.addObjects(db, 'post', req.body);
             } else {
+                if(Object.keys(req.body).length === 0) return next(new PostFailedToCreateError("Missing post body"));
+                const userResp = await dbLib.getObjectByFilter(db, 'user', {username: req.body.username});
+                if(!userResp) return next(new PostFailedToCreateError("Username not found"));
+
                 results = await dbLib.addObject(db, 'post', req.body);
             }
 
@@ -102,7 +114,7 @@ router.post('/', async (req, res, next) => {
 
 // Implement the PUT /post/id endpoint
 router.put('/:id', async (req, res, next) => {
-    if (!req.body) {
+    if (!req.body || Object.keys(req.body).length === 0) {
         return next(new PostFailedToUpdateError("Missing post body"));
     }
 

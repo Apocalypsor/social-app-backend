@@ -3,7 +3,8 @@ const validator = require('validator');
 
 const {
     UserNotFoundError, UserFailedToUpdateError,
-    UserFailedToCreateError, UserFailedToDeleteError
+    UserFailedToCreateError, UserFailedToDeleteError,
+    UserFailedToGetError,
 } = require('../errors/userError');
 const {ObjectNotFoundError} = require("../errors/databaseError");
 const express = require("express");
@@ -12,15 +13,19 @@ const router = express.Router();
 
 router.get('/:username', async (req, res, next) => {
     try {
-        const db = await dbLib.getDb();
-        const results = await dbLib.getObjectByFilter(db, 'user', {username: req.params.username});
-        if(results){
-            res.status(200).json({
-                success: true,
-                data: results
-            });
+        if(!req.params.username){
+            return next(new UserFailedToGetError("Missing username"));
         }else{
-            next(new UserNotFoundError("Wrong username"));
+            const db = await dbLib.getDb();
+            const results = await dbLib.getObjectByFilter(db, 'user', {username: req.params.username});
+            if(results){
+                res.status(200).json({
+                    success: true,
+                    data: results
+                });
+            }else{
+                next(new UserNotFoundError("Wrong username"));
+            }
         }
     } catch {
         next(new UserNotFoundError("User not found"));
@@ -29,6 +34,8 @@ router.get('/:username', async (req, res, next) => {
 
 router.get('/search/:username', async (req, res, next) => {
     try {
+        if(!req.params.username) return next(new UserFailedToGetError("Missing username"));
+
         const db = await dbLib.getDb();
         const results = await dbLib.getObjectsByFilter(db, 'user', {username: {$regex: req.params.username}});
         res.status(200).json({

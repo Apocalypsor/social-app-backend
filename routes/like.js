@@ -48,6 +48,10 @@ router.post('/like', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
+        const post = await dbLib.getObjectByFilter(db, 'post', {_id: req.body.postId});
+        const username = await dbLib.getObjectByFilter(db, 'user', {username: req.body.userLike});
+        if(!post || !username) return next(new LikeFailedToGetError('Post or username does not exist'));
+
         let existed = await dbLib.getObjectByFilter(
             db, 'like',
             {postId: req.body.postId, userLike: req.body.userLike}
@@ -77,6 +81,11 @@ router.post('/unlike', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
 
+        const post = await dbLib.getObjectByFilter(db, 'post', {_id: req.body.postId});
+        const username = await dbLib.getObjectByFilter(db, 'user', {username: req.body.userLike});
+        if(!post || !username) return next(new LikeFailedToGetError('Post or username does not exist'));
+
+
         let existed = await dbLib.getObjectByFilter(
             db, 'like',
             {postId: req.body.postId, userLike: req.body.userLike}
@@ -84,6 +93,8 @@ router.post('/unlike', async (req, res, next) => {
 
         if (existed) {
             await dbLib.deleteObjectById(db, 'like', existed._id);
+        }else{
+            return next(new LikeFailedToGetError('Post is not liked'));
         }
 
         res.status(200).json({
