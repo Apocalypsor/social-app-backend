@@ -1,7 +1,6 @@
 const request = require('supertest');
 const webapp = require('../../app');
 const dbLib = require('../../db/dbFunction');
-const {ObjectId} = require("mongodb");
 
 const endpoint = '/api/follow/';
 let mongo;
@@ -29,6 +28,13 @@ describe('Test the follow endpoints', () => {
     });
 
     beforeEach(async () => {
+        try {
+            await db.admin().ping();
+        } catch (err) {
+            await dbLib.connect('test');
+            db = await dbLib.getDb();
+        }
+
         // post two users
         const user1 = {
             username: "testUser1",
@@ -48,20 +54,20 @@ describe('Test the follow endpoints', () => {
         }
 
 
-        const user1Res = (await request(webapp)
+        await request(webapp)
             .post('/api/user/')
             .send(user1)
-            .set('Accept', 'application/json'));
-        const user2Res = (await request(webapp)
+            .set('Accept', 'application/json');
+        await request(webapp)
             .post('/api/user/')
             .send(user2)
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json');
     });
 
     afterEach(async () => {
         // delete the two users
-        const userDeleteRes = await db.collection('user').deleteMany({});
-        const followDeleteRes = await db.collection('follow').deleteMany({});
+        await db.collection('user').deleteMany({});
+        await db.collection('follow').deleteMany({});
     });
 
     // Test follow endpoint
@@ -97,7 +103,7 @@ describe('Test the follow endpoints', () => {
         expect(tmpRes2.statusCode).toEqual(500);
 
         // Delete the follow
-        const deleteRes = await db.collection('follow').findOneAndDelete({following: "testUser2", follower: "testUser1"});
+        await db.collection('follow').findOneAndDelete({following: "testUser2", follower: "testUser1"});
 
     });
 
@@ -105,10 +111,10 @@ describe('Test the follow endpoints', () => {
     test('POST /follow/unfollow', async () => {
 
         // Follow user2 by user1
-        const followResp = (await request(webapp)
+        await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser2", follower: "testUser1"})
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json');
 
         // Check the database
         const followRes = await db.collection('follow').findOne({following: "testUser2", follower: "testUser1"});
@@ -150,10 +156,10 @@ describe('Test the follow endpoints', () => {
     test('GET /follow/follower-names/:username', async () => {
 
         // Follow user2 by user1
-        const followResp = (await request(webapp)
+        await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser2", follower: "testUser1"})
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json');
 
         // Check the database
         const followRes = await db.collection('follow').findOne({following: "testUser2", follower: "testUser1"});
@@ -197,11 +203,10 @@ describe('Test the follow endpoints', () => {
 
     // Test /follow/following-count/:username endpoint and /follow/follower-count/:username endpoint
     test('GET /follow/following-count/:username and GET /follow/follower-count/:username', async () => {
-
-        const followResp = (await request(webapp)
+        await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser2", follower: "testUser1"})
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json');
 
         // Test following count
         const followingCountResp1 = (await request(webapp)
@@ -250,10 +255,10 @@ describe('Test the follow endpoints', () => {
         expect(followerCountResp2._body.data).toEqual(1);
 
         // Unfollow user2 by user1
-        const unfollowResp = (await request(webapp)
+        await request(webapp)
             .post(endpoint + 'unfollow')
             .send({following: "testUser2", follower: "testUser1"})
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json');
 
         // Following count check
         const followingCountResp3 = (await request(webapp)
@@ -327,10 +332,10 @@ describe('Test the follow endpoints', () => {
     test('Test /is-following/:followerUsername/:followingUsername endpoint', async () => {
 
         // user1 follows user2
-        const followResp = (await request(webapp)
+        await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser2", follower: "testUser1"})
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json');
 
         // Test is following
         const isFollowingResp1 = (await request(webapp)
@@ -362,7 +367,6 @@ describe('Test the follow endpoints', () => {
             .set('Accept', 'application/json'));
         // Type check
         expect(isFollowingResp4.status).toEqual(404);
-
 
 
     });
@@ -404,58 +408,58 @@ describe('Test the follow endpoints', () => {
         };
 
         // Create users
-        const user3Resp = (await request(webapp)
+        await request(webapp)
             .post('/api/user')
             .send(user3)
-            .set('Accept', 'application/json'));
-        const user4Resp = (await request(webapp)
+            .set('Accept', 'application/json');
+        await request(webapp)
             .post('/api/user')
             .send(user4)
-            .set('Accept', 'application/json'));
-        const user5Resp = (await request(webapp)
+            .set('Accept', 'application/json');
+        await request(webapp)
             .post('/api/user')
             .send(user5)
-            .set('Accept', 'application/json'));
-        const user6Resp = (await request(webapp)
+            .set('Accept', 'application/json');
+        await request(webapp)
             .post('/api/user')
             .send(user6)
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json');
 
 
         // user1 follows user2, user3, user4, user5
-        const followResp1 = (await request(webapp)
+        await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser2", follower: "testUser1"})
-            .set('Accept', 'application/json'));
-        const followResp2 = (await request(webapp)
+            .set('Accept', 'application/json');
+        await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser3", follower: "testUser1"})
-            .set('Accept', 'application/json'));
-        const followResp3 = (await request(webapp)
+            .set('Accept', 'application/json');
+        await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser4", follower: "testUser1"})
-            .set('Accept', 'application/json'));
-        const followResp4 = (await request(webapp)
+            .set('Accept', 'application/json');
+        await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser5", follower: "testUser1"})
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json');
         // user2 follows user3, user4, user5, user6
-        const followResp5 = (await request(webapp)
+        await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser3", follower: "testUser2"})
-            .set('Accept', 'application/json'));
-        const followResp6 = (await request(webapp)
+            .set('Accept', 'application/json');
+        await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser4", follower: "testUser2"})
-            .set('Accept', 'application/json'));
-        const followResp7 = (await request(webapp)
+            .set('Accept', 'application/json');
+        await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser5", follower: "testUser2"})
-            .set('Accept', 'application/json'));
-        const followResp8 = (await request(webapp)
+            .set('Accept', 'application/json');
+        await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser6", follower: "testUser2"})
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json');
 
         // Check the suggestions
         const followSuggestionsResp1 = (await request(webapp)
@@ -471,10 +475,10 @@ describe('Test the follow endpoints', () => {
         expect(followSuggestionsResp1._body.data.length).toEqual(0);
 
         // Check the suggestions for testUser1
-        const unfollowResp1 = (await request(webapp)
+        await request(webapp)
             .post(endpoint + 'unfollow')
             .send({following: "testUser2", follower: "testUser1"})
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json');
         const followSuggestionsResp2 = (await request(webapp)
             .get(endpoint + 'suggestions/testUser1')
             .set('Accept', 'application/json'));
@@ -510,12 +514,12 @@ describe('Test the follow endpoints', () => {
         expect(followSuggestionsResp5.status).toEqual(404);
 
         // Delete users
-        const deleteResp0 = db.collection('user').deleteMany({profilePicture: "https://ui-avatars.com/api/?rounded=true"});
+        await db.collection('user').deleteMany({profilePicture: "https://ui-avatars.com/api/?rounded=true"});
 
         // Delete relationship
-        const deleteResp1 = db.collection('follow').deleteMany({follower: "testUser1"});
-        const deleteResp2 = db.collection('follow').deleteMany({follower: "testUser2"});
-    }, 10000);
+        await db.collection('follow').deleteMany({follower: "testUser1"});
+        await db.collection('follow').deleteMany({follower: "testUser2"});
+    }, 30000);
 
 
 });

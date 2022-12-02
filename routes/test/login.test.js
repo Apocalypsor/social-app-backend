@@ -28,6 +28,13 @@ describe("Test the login endpoints", () => {
     });
 
     beforeEach(async () => {
+        try {
+            await db.admin().ping();
+        } catch (err) {
+            await dbLib.connect('test');
+            db = await dbLib.getDb();
+        }
+
         const user1 = {
             username: "testUser1",
             password: 'testPassword1',
@@ -37,7 +44,7 @@ describe("Test the login endpoints", () => {
             profilePicture: "https://ui-avatars.com/api/?rounded=true"
         };
 
-        const user1Resp = await request(webapp)
+        await request(webapp)
             .post('/api/user')
             .send(user1)
             .set('Accept', 'application/json');
@@ -70,12 +77,5 @@ describe("Test the login endpoints", () => {
         expect(resp.body.data.profilePicture).toBe("https://ui-avatars.com/api/?rounded=true");
 
         jwt.verify(resp._body.data.token, jwtSecret);
-
-
-        // Test wrong password
-        const loginInfo2 = {
-            username: "testUser1", password: 'wrongPassword',
-        }
-
     });
 });

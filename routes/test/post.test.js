@@ -39,6 +39,13 @@ describe('Test the post endpoints', () => {
     });
 
     beforeEach(async () => {
+        try {
+            await db.admin().ping();
+        } catch (err) {
+            await dbLib.connect('test');
+            db = await dbLib.getDb();
+        }
+
         const user = {
             username: "demo",
             password: "password",
@@ -49,26 +56,27 @@ describe('Test the post endpoints', () => {
         }
 
         // Create a user..lo
-        const userResp = await db.collection('user').insertOne(user);
+        await db.collection('user').insertOne(user);
 
         res = (await request(webapp)
             .post(endpoint)
             .send(expectedPost)
             .set('Accept', 'application/json'));
 
-        if(res._body.success){
+        if (res._body.success) {
             post = res._body.data;
             postId = post._id.toString();
 
-        }else{
+        } else {
 
         }
     });
 
     afterEach(async () => {
-        const deleteRes = await db.collection('post').deleteMany({});
-        const deleteRes2 = await db.collection('user').deleteMany({});
-        if(deleteRes.ok !== 1){
+        try {
+            await db.collection('post').deleteMany({});
+            await db.collection('user').deleteMany({});
+        } catch (err) {
 
         }
     });
@@ -90,8 +98,8 @@ describe('Test the post endpoints', () => {
 
         // Test wrong id
         const tmpRes = (await request(webapp)
-                    .get(endpoint + "123")
-                    .set('Accept', 'application/json'));
+            .get(endpoint + "123")
+            .set('Accept', 'application/json'));
         expect(tmpRes.status).toBe(500);
 
     });
@@ -122,7 +130,7 @@ describe('Test the post endpoints', () => {
             lastName: "last",
             profilePicture: "https://ui-avatars.com/api/?rounded=true"
         }
-        const userResp = await db.collection('user').insertOne(user2);
+        await db.collection('user').insertOne(user2);
 
         const secondObj = {
             username: "demo2",
@@ -132,10 +140,10 @@ describe('Test the post endpoints', () => {
             public: true,
             tagging: [],
         }
-        const putRes = (await request(webapp)
+        await request(webapp)
             .post(endpoint)
             .send(secondObj)
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json');
 
 
         const getRes = (await request(webapp)
@@ -151,7 +159,6 @@ describe('Test the post endpoints', () => {
         expect(getRes._body.success).toBe(true);
         expect(getRes._body.data[1]).toMatchObject(expectedPost);
         expect(getRes._body.data[0]).toMatchObject(secondObj);
-
 
 
     });
@@ -218,19 +225,18 @@ describe('Test the post endpoints', () => {
         });
 
 
-
         // Test wrong id
         const tmpRes = (await request(webapp)
-                    .put(endpoint + "123")
-                    .send(updateObj)
-                    .set('Accept', 'application/json'));
+            .put(endpoint + "123")
+            .send(updateObj)
+            .set('Accept', 'application/json'));
         expect(tmpRes.status).toBe(500);
 
         // Test missing body
         const tmpRes2 = (await request(webapp)
-                    .put(endpoint + post._id.toString())
-                    .send({})
-                    .set('Accept', 'application/json'));
+            .put(endpoint + post._id.toString())
+            .send({})
+            .set('Accept', 'application/json'));
         expect(tmpRes2.status).toBe(500);
     });
 
@@ -251,8 +257,8 @@ describe('Test the post endpoints', () => {
 
         // Test wrong id
         const tmpRes = (await request(webapp)
-                    .delete(endpoint + "123")
-                    .set('Accept', 'application/json'));
+            .delete(endpoint + "123")
+            .set('Accept', 'application/json'));
         expect(tmpRes.status).toBe(500);
 
         // Check if the post is in the database

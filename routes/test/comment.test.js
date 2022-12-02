@@ -44,10 +44,10 @@ describe("Test the comment endpoints", () => {
     }
 
     beforeAll(async () => {
-        try{
+        try {
             mongo = await dbLib.connect('test');
             db = await dbLib.getDb();
-        }catch (err) {
+        } catch (err) {
 
         }
     });
@@ -61,10 +61,16 @@ describe("Test the comment endpoints", () => {
     });
 
     beforeEach(async () => {
+        try {
+            await db.admin().ping();
+        } catch (err) {
+            await dbLib.connect('test');
+            db = await dbLib.getDb();
+        }
 
         // Create a user.
         const userResp = await db.collection('user').insertOne(user);
-        const commentUserResp = await db.collection('user').insertOne(commentUser);
+        await db.collection('user').insertOne(commentUser);
 
         // Create a post.
         res = (await request(webapp)
@@ -99,8 +105,6 @@ describe("Test the comment endpoints", () => {
 
     // Test the POST /api/comment endpoint
     test("Test POST /api/comment", async () => {
-
-
         // Type and status check
         expect(commentResp.status).toBe(200);
         expect(commentResp.type).toBe("application/json");
@@ -114,7 +118,7 @@ describe("Test the comment endpoints", () => {
         // Test if wrong postId or username
         const wrongPostId = (await request(webapp)
             .post(endpoint)
-            .send({postId: postId, comment: comment, username:"wrongUsername"})
+            .send({postId: postId, comment: comment, username: "wrongUsername"})
             .set('Accept', 'application/json'));
 
         // Type and status check

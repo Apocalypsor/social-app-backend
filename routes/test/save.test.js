@@ -1,8 +1,6 @@
 const request = require('supertest');
 const FormData = require('form-data');
 const webapp = require('../../app');
-const dbLib = require('../../db/dbFunction');
-const {ObjectId} = require("mongodb");
 const fs = require('fs');
 
 const endpoint = '/api/save/';
@@ -48,7 +46,7 @@ describe('TEST save endpoints', () => {
             if (err) throw err;
         });
         if (fs.existsSync(sourcePath)) {
-            fs.rmdirSync(sourcePath);
+            fs.rmSync(sourcePath, {recursive: true, force: true});
         }
     });
 
@@ -62,6 +60,17 @@ describe('TEST save endpoints', () => {
         expect(res.status).toBe(500);
         expect(res._body.success).toBe(false);
         expect(res._body.message).toBe("File not found");
+    });
+
+    test('Test POST /save/multiple endpoint', async () => {
+        const res = await request(webapp)
+            .post(endpoint + 'multiple')
+            .send({formDataOne});
+
+
+        expect(res.status).toBe(500);
+        expect(res._body.success).toBe(false);
+        expect(res._body.message).toBe("Error saving file");
     });
 
 

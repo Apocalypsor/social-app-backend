@@ -57,21 +57,29 @@ describe("Test user endpoints", () => {
     });
 
     afterAll(async () => {
-       await clearDatabase();
         try {
+            await clearDatabase();
             await dbLib.close();  // close the connection to the database
         } catch (err) {
 
         }
     });
 
+    beforeEach(async () => {
+        try {
+            await db.admin().ping();
+        } catch (err) {
+            await dbLib.connect('test');
+            db = await dbLib.getDb();
+        }
+    });
 
     const clearDatabase = async () => {
         try {
-            if(actualUser._id instanceof ObjectId){
+            if (actualUser._id instanceof ObjectId) {
                 actualUser._id = actualUser._id.toString();
             }
-            const result = await deleteObjectById(db, 'user', actualUser._id);
+            await deleteObjectById(db, 'user', actualUser._id);
 
         } catch (err) {
 
@@ -140,16 +148,16 @@ describe("Test user endpoints", () => {
     // Test missing a field.
     test("POST /user missing a field", async () => {
         const tmpRes = (await request(webapp)
-                    .post(endpoint)
-                    .send({
-                        username: 'testUser2',
-                        password: 'testPassword2',
-                        // email: 'testEmail2@gmail.com',
-                        firstName: 'testFirstName2',
-                        lastName: 'testLastName2',
-                        profilePicture: "https://ui-avatars.com/api/?rounded=true"
-                    })
-                    .set('Accept', 'application/json'));
+            .post(endpoint)
+            .send({
+                username: 'testUser2',
+                password: 'testPassword2',
+                // email: 'testEmail2@gmail.com',
+                firstName: 'testFirstName2',
+                lastName: 'testLastName2',
+                profilePicture: "https://ui-avatars.com/api/?rounded=true"
+            })
+            .set('Accept', 'application/json'));
         const tmpResJson = JSON.parse(tmpRes.text);
         expect(tmpResJson.success).toBe(false);
         expect(tmpRes.status).toBe(500);

@@ -29,6 +29,13 @@ describe('Test the like endpoints', () => {
     });
 
     beforeEach(async () => {
+        try {
+            await db.admin().ping();
+        } catch (err) {
+            await dbLib.connect('test');
+            db = await dbLib.getDb();
+        }
+
 
         // Create a post.
         const post1 = {
@@ -53,7 +60,7 @@ describe('Test the like endpoints', () => {
 
         // Post in dataset
         const postResp = await db.collection('post').insertOne(post1);
-        const userResp = await db.collection('user').insertOne(user1);
+        await db.collection('user').insertOne(user1);
 
         //
         username = user1.username;
@@ -97,7 +104,6 @@ describe('Test the like endpoints', () => {
         expect(like).toMatchObject({userLike: username, postId: ObjectId(postId)});
 
 
-
         // Test missing postId or userLike
         const likeResp2 = await request(webapp)
             .post(endpoint + "like")
@@ -124,7 +130,7 @@ describe('Test the like endpoints', () => {
 
         // Create a like
         const likeResp = await db.collection('like').insertOne({userLike: username, postId: ObjectId(postId)});
-        const likeId = likeResp.insertedId.toString();
+        likeResp.insertedId.toString();
 
         const unlikeResp = await request(webapp)
             .post(endpoint + "unlike")
@@ -175,7 +181,7 @@ describe('Test the like endpoints', () => {
             userLike: username,
             postId: ObjectId(postId)
         });
-        const likeId = likeResp.insertedId.toString();
+        likeResp.insertedId.toString();
 
         const isLikeResp = await request(webapp)
             .get(endpoint + "is-like/" + username + "/" + postId)
@@ -190,7 +196,7 @@ describe('Test the like endpoints', () => {
         expect(isLikeResp._body.data).toBe(true);
 
         // unlike the post
-        const unlikeResp = await db.collection('like').deleteOne({
+        await db.collection('like').deleteOne({
             userLike: username,
             postId: ObjectId(postId)
         });
@@ -228,7 +234,7 @@ describe('Test the like endpoints', () => {
             userLike: username,
             postId: ObjectId(postId)
         });
-        const likeId = likeResp.insertedId.toString();
+        likeResp.insertedId.toString();
 
         const countLikeResp = await request(webapp)
             .get(endpoint + "count/" + postId)
@@ -243,7 +249,6 @@ describe('Test the like endpoints', () => {
 
 
     });
-
 
 
 });
