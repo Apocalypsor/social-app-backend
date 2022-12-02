@@ -1,4 +1,4 @@
-# TokTik Backend
+# TokTik
 
 ## Backend
 
