@@ -36,6 +36,12 @@ npm start
 
 **Do not start the mock API servers!**
 
+Default User:
+```
+username: demo
+password: 123456
+```
+
 ## Test
 
 ```bash
