@@ -1,0 +1,42 @@
+GET localhost:4000/api/follow/follower-names/demo
+
+###
+GET localhost:4000/api/follow/follower-names/Monty_Wolf
+
+###
+POST localhost:4000/api/follow/follow
+Content-Type: application/json
+
+{
+  "follower": "demo",
+  "following": "Monty_Wolf"
+}
+
+###
+POST localhost:4000/api/follow/follow
+Content-Type: application/json
+
+{
+  "following": "Carmelo_Pagac1"
+}
+
+###
+POST localhost:4000/api/follow/unfollow
+Content-Type: application/json
+
+{
+  "follower": "demo",
+  "following": "Monty_Wolf"
+}
+
+###
+GET localhost:4000/api/follow/is-following/demo/Monty_Wolf
+
+###
+GET localhost:4000/api/follow/suggestions/demo
+
+###
+GET localhost:4000/api/follow/follower-count/demo
+
+###
+GET localhost:4000/api/follow/following-count/demo

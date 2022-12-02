@@ -1,0 +1,45 @@
+GET http://localhost:4000/api/user/demo
+
+###
+GET http://localhost:4000/api/user/Stephanie.Adams
+
+###
+POST http://localhost:4000/api/user
+Content-Type: application/json
+
+{
+  "username": "Antonette_Renner23",
+  "firstName": "Talon1",
+  "lastName": "Altenwerth1",
+  "email": "Casey42@gmail.com",
+  "password": "hT2uE1HybohrizE",
+  "profilePicture": "https://ui-avatars.com/api/?rounded=true"
+}
+
+###
+GET http://localhost:4000/api/user/Stephanie.Adams
+
+###
+PUT http://localhost:4000/api/user/Stephanie.Adams
+Content-Type: application/json
+
+{
+  "username": "Stephanie.Adams",
+  "firstName": "Talon1111",
+  "lastName": "Altenwerth1",
+  "email": "Casey42@gmail.com",
+  "password": "hT2uE1HybohrizE",
+  "profilePicture": "https://ui-avatars.com/api/?rounded=true"
+}
+
+###
+GET http://localhost:4000/api/user/Stephanie.Adams
+
+###
+DELETE http://localhost:4000/api/user/Stephanie.Adams
+
+###
+GET http://localhost:4000/api/user/Stephanie.Adams
+
+###
+GET http://localhost:4000/api/user/search/te
