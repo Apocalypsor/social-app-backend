@@ -48,7 +48,7 @@ describe("Test the comment endpoints", () => {
             mongo = await dbLib.connect('test');
             db = await dbLib.getDb();
         }catch (err) {
-            return err;
+
         }
     });
 
@@ -56,7 +56,7 @@ describe("Test the comment endpoints", () => {
         try {
             await dbLib.close();  // close the connection to the database
         } catch (err) {
-            return err;
+
         }
     });
 

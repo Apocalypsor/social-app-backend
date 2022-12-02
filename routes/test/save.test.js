@@ -17,6 +17,10 @@ describe('TEST save endpoints', () => {
 
     beforeEach(async () => {
         try {
+            if (!fs.existsSync(sourcePath)) {
+                fs.mkdirSync(sourcePath);
+            }
+
             await fs.writeFile(sourcePath + 'testFile1.jpg', 'test', (err) => {
                 if (err) throw err;
             });
@@ -43,6 +47,9 @@ describe('TEST save endpoints', () => {
         await fs.unlink(sourcePath + 'testFile2.jpg', (err) => {
             if (err) throw err;
         });
+        if (fs.existsSync(sourcePath)) {
+            fs.rmdirSync(sourcePath);
+        }
     });
 
     // Test POST /save/one endpoint

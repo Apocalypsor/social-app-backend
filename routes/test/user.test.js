@@ -27,27 +27,32 @@ describe("Test user endpoints", () => {
     }
 
     beforeAll(async () => {
-        mongo = await dbLib.connect('test');
-        db = await dbLib.getDb();
-        res = (await request(webapp)
-            .post(endpoint)
-            .send({
-                username: 'testUser',
-                password: 'testPassword',
-                email: 'testEmail@gmail.com',
-                firstName: 'testFirstName',
-                lastName: 'testLastName',
-                profilePicture: "https://ui-avatars.com/api/?rounded=true"
-            })
-            .set('Accept', 'application/json'));
-        // res = JSON.parse(res.text);
+        try {
+            mongo = await dbLib.connect('test');
+            db = await dbLib.getDb();
+
+            res = (await request(webapp)
+                .post(endpoint)
+                .send({
+                    username: 'testUser',
+                    password: 'testPassword',
+                    email: 'testEmail@gmail.com',
+                    firstName: 'testFirstName',
+                    lastName: 'testLastName',
+                    profilePicture: "https://ui-avatars.com/api/?rounded=true"
+                })
+                .set('Accept', 'application/json'));
+            // res = JSON.parse(res.text);
 
 
-        if (res._body.success) {
-            actualUser = res._body.data;
+            if (res._body.success) {
+                actualUser = res._body.data;
 
-        } else {
-            console.log("Create user failed");
+            } else {
+                console.log("Create user failed");
+            }
+        } catch (err) {
+
         }
     });
 
@@ -56,7 +61,7 @@ describe("Test user endpoints", () => {
         try {
             await dbLib.close();  // close the connection to the database
         } catch (err) {
-            return err;
+
         }
     });
 

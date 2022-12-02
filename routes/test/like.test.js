@@ -12,12 +12,12 @@ describe('Test the like endpoints', () => {
     let username;
 
     beforeAll(async () => {
-       try{
-           mongo = await dbLib.connect('test');
-           db = await dbLib.getDb();
-       }catch (err) {
+        try {
+            mongo = await dbLib.connect('test');
+            db = await dbLib.getDb();
+        } catch (err) {
 
-       }
+        }
     });
 
     afterAll(async () => {

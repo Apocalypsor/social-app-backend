@@ -12,15 +12,19 @@ describe('Test the follow endpoints', () => {
     let db;
 
     beforeAll(async () => {
-        mongo = await dbLib.connect('test');
-        db = await dbLib.getDb();
+        try {
+            mongo = await dbLib.connect('test');
+            db = await dbLib.getDb();
+        } catch (err) {
+
+        }
     });
 
     afterAll(async () => {
         try {
             await dbLib.close();  // close the connection to the database
         } catch (err) {
-            return err;
+
         }
     });
 

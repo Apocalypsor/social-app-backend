@@ -23,10 +23,10 @@ const connect = async (database) => {
     }
 }
 
-const close = () => {
+const close = async () => {
     try {
-        con.close();
-        console.log('close connection');
+        console.log('closing connection');
+        await con.close();
     } catch (err) {
         console.log(`error: ${err.message}`);
     }

@@ -22,15 +22,19 @@ describe('Test the post endpoints', () => {
     }
 
     beforeAll(async () => {
-        mongo = await dbLib.connect('test');
-        db = await dbLib.getDb();
+        try {
+            mongo = await dbLib.connect('test');
+            db = await dbLib.getDb();
+        } catch (err) {
+
+        }
     });
 
     afterAll(async () => {
         try {
             await dbLib.close();  // close the connection to the database
         } catch (err) {
-            return err;
+
         }
     });
 
@@ -232,7 +236,6 @@ describe('Test the post endpoints', () => {
 
     // Test DELETE /post/:id endpoint
     test('DELETE /post/:id', async () => {
-
         const deleteRes = (await request(webapp)
             .delete(endpoint + post._id.toString())
             .set('Accept', 'application/json'));

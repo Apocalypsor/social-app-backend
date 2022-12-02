@@ -16,14 +16,14 @@ describe("Test the login endpoints", () => {
             mongo = await dbLib.connect('test');
             db = await dbLib.getDb();
         } catch (err) {
-            return err;
+
         }
     });
     afterAll(async () => {
         try {
             await dbLib.close();
         } catch (err) {
-            return err;
+
         }
     });
 
@@ -52,8 +52,7 @@ describe("Test the login endpoints", () => {
 
     test("Test /login endpoint", async () => {
         const loginInfo = {
-            username: "testUser1",
-            password: 'testPassword1'
+            username: "testUser1", password: 'testPassword1'
         };
 
         const resp = await request(webapp)
@@ -75,8 +74,7 @@ describe("Test the login endpoints", () => {
 
         // Test wrong password
         const loginInfo2 = {
-            username: "testUser1",
-            password: 'wrongPassword',
+            username: "testUser1", password: 'wrongPassword',
         }
 
     });
