@@ -16,6 +16,8 @@ DB_URL=MONGO_DB_URL_PROVIDED_IN_FORM
 
 Remember to replace `MONGO_DB_URL_PROVIDED_IN_FORM` with the link we provided.
 
+Note that we are saving all media files locally.
+
 ### 1. Start
 ```bash
 npm start
