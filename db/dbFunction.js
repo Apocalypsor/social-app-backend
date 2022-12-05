@@ -12,7 +12,7 @@ let db;
 // connection to the db
 const connect = async (database) => {
     // always use try/catch to handle any exception
-    database = database || 'toktik';
+    database = database || (process.env.DEBUG ? 'toktik-dev' : 'toktik');
     try {
         con = (await MongoClient.connect(dbURL, {useNewUrlParser: true, useUnifiedTopology: true}));
         db = con.db(database);
