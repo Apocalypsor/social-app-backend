@@ -61,7 +61,7 @@ router.get('/page/:page', async (req, res, next) => {
                 limitNum: parseInt(limitNum)
             }
 
-            const results = await dbLib.getObjectsByFilterOptionAndPage(db, 'post', {}, option, pageObj);
+            const results = await dbLib.getObjectsByFilterOptionAndPage(db, 'post', {public: true}, option, pageObj);
             res.status(200).json({
                 success: true,
                 data: results
