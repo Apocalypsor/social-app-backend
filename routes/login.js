@@ -21,8 +21,6 @@ router.post('/login', bouncer.block, async (req, res, next) => {
         return next(new LoginFailedError('Username or password is missing'));
     }
 
-    if (bouncer.remaining > 0) bouncer.blocked(req, res, next, bouncer.remaining);
-
     try {
         const {username, password} = req.body;
         const db = await dbLib.getDb();
@@ -43,13 +41,10 @@ router.post('/login', bouncer.block, async (req, res, next) => {
                 }
             });
         } else {
-            bouncer.block(req, res, () => next(new LoginFailedError('Invalid username or password')));
-            // next(new LoginFailedError('Invalid username or password'));
+            next(new LoginFailedError('Invalid username or password'));
         }
     } catch {
-        console.log("server error");
-        bouncer.block(req, res, () => next(new LoginServerError('Server error')));
-        // next(new LoginServerError('Server Error'));
+        next(new LoginServerError('Server Error'));
     }
 });
 
