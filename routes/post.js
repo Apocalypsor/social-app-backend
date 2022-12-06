@@ -37,7 +37,7 @@ router.get('/username/:username', async (req, res, next) => {
             results = await dbLib.getObjectsByFilter(db, 'post', {username: req.params.username});
             res.status(200).json({
                 success: true,
-                data: results.sort((a, b) => b.createdAt - a.createdAt)
+                data: results.sort((a, b) => a.createdAt < b.createdAt).reverse()
             });
         } else {
             next(new PostNotFoundError("Missing username."))
