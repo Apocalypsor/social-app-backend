@@ -36,7 +36,7 @@ function checkJwtSecret() {
     if (!process.env.JWT_SECRET) {
         console.log('JWT_SECRET is not set');
         const secret = randomString(32);
-        fs.appendFileSync('.env', 'JWT_SECRET=' + secret);
+        fs.appendFileSync('.env', '\nJWT_SECRET=' + secret);
         process.env.JWT_SECRET = secret;
         console.log('Generated new JWT_SECRET');
     }
