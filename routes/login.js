@@ -1,13 +1,10 @@
-const {randomString} = require('../util/tool');
-const express = require("express");
-const dbLib = require("../db/dbFunction");
-const jwt = require("jsonwebtoken");
-const {LoginFailedError, LoginServerError} = require("../errors/loginError");
+const express = require('express');
+const dbLib = require('../db/dbFunction');
+const jwt = require('jsonwebtoken');
+const {LoginFailedError, LoginServerError} = require('../errors/loginError');
 
 const router = express.Router();
-
-
-const jwtSecret = randomString(32);
+const jwtSecret = process.env.JWT_SECRET;
 
 router.post('/login', async (req, res, next) => {
     if (!req.body.username || !req.body.password) {
@@ -37,7 +34,4 @@ router.post('/login', async (req, res, next) => {
     }
 });
 
-module.exports = {
-    loginRouter: router,
-    jwtSecret: jwtSecret
-}
+module.exports = router;

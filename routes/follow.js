@@ -3,6 +3,7 @@ const {FollowerFailedToGetError} = require("../errors/followError");
 const {getObjectsByFilter} = require("../db/dbFunction");
 const shuffle = require('shuffle-array');
 const express = require("express");
+const {UsernameNotMatchError} = require("../errors/loginError");
 
 const router = express.Router();
 
@@ -74,13 +75,17 @@ router.post('/follow', async (req, res, next) => {
         return next(new FollowerFailedToGetError('Missing follower or following'));
     }
 
+    if (req.body.follower !== req.decoded.username) {
+        return next(new UsernameNotMatchError("You can't follow this user"));
+    }
+
     try {
         const db = await dbLib.getDb();
 
         // Check if the follower and following exist
         const follower = await dbLib.getObjectByFilter(db, 'user', {username: req.body.follower});
         const following = await dbLib.getObjectByFilter(db, 'user', {username: req.body.following});
-        if(!follower || !following) return next(new FollowerFailedToGetError('Follower or following does not exist'));
+        if (!follower || !following) return next(new FollowerFailedToGetError('Follower or following does not exist'));
 
 
         const existed = await dbLib.getObjectByFilter(
@@ -110,13 +115,17 @@ router.post('/unfollow', async (req, res, next) => {
         return;
     }
 
+    if (req.body.follower !== req.decoded.username) {
+        return next(new UsernameNotMatchError("You can't unfollow this user"));
+    }
+
     try {
         const db = await dbLib.getDb();
 
         // Check if the follower and following exist
         const follower = await dbLib.getObjectByFilter(db, 'user', {username: req.body.follower});
         const following = await dbLib.getObjectByFilter(db, 'user', {username: req.body.following});
-        if(!follower || !following) return next(new FollowerFailedToGetError('Follower or following does not exist'));
+        if (!follower || !following) return next(new FollowerFailedToGetError('Follower or following does not exist'));
 
 
         let existed = await dbLib.getObjectByFilter(
@@ -140,8 +149,6 @@ router.post('/unfollow', async (req, res, next) => {
 router.get('/suggestions/:username', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
-
-
 
         const finalArray = [];
         const checkId = new Set();
