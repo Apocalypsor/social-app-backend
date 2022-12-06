@@ -1,5 +1,7 @@
 const fs = require("fs");
 
+let jwtSecret = randomString(32);
+
 function randomString(length) {
     let result = '';
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -33,13 +35,17 @@ function unless(path, method, middleware) {
 }
 
 function checkJwtSecret() {
+    if (process.env.JWT_SECRET) return;
+
     if (!process.env.JWT_SECRET) {
         console.log('JWT_SECRET is not set');
-        const secret = randomString(32);
-        fs.appendFileSync('.env', '\nJWT_SECRET=' + secret);
-        process.env.JWT_SECRET = secret;
+        fs.appendFileSync('.env', '\nJWT_SECRET=' + jwtSecret);
         console.log('Generated new JWT_SECRET');
     }
 }
 
-module.exports = {randomString, unless, checkJwtSecret};
+function getJwtSecret() {
+    return process.env.JWT_SECRET || jwtSecret;
+}
+
+module.exports = {randomString, unless, checkJwtSecret, getJwtSecret};

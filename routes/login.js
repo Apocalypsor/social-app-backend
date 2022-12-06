@@ -1,12 +1,13 @@
 const express = require('express');
 const dbLib = require('../db/dbFunction');
 const jwt = require('jsonwebtoken');
-const {LoginFailedError, LoginServerError, ToManyFailedError} = require('../errors/loginError');
+const {LoginFailedError, LoginServerError} = require('../errors/loginError');
+const {getJwtSecret} = require("../util/tool");
 const bouncer = require('express-bouncer')(10000, 20000, 3);
 
 
 const router = express.Router();
-const jwtSecret = process.env.JWT_SECRET;
+const jwtSecret = getJwtSecret();
 
 bouncer.blocked = function (req, res, next, remaining) {
     console.log("Too many requests have been made, " +
