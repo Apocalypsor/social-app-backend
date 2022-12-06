@@ -8,6 +8,7 @@ const {
 } = require('../errors/userError');
 const {ObjectNotFoundError} = require("../errors/databaseError");
 const express = require("express");
+const {UsernameNotMatchError} = require("../errors/loginError");
 
 const router = express.Router();
 
@@ -52,14 +53,18 @@ router.put('/:username', async (req, res, next) => {
         return next(new UserFailedToUpdateError("Missing user body"));
     }
 
+    if (req.body.username !== req.decoded.username) {
+        return next(new UsernameNotMatchError("You can only update your own account"));
+    }
+
     try {
         const db = await dbLib.getDb();
         // check the req.body
-        if(!req.body.username || !req.body.password || !req.body.email){
+        if (!req.body.username || !req.body.password || !req.body.email) {
             next(new UserFailedToUpdateError("Missing required fields. The required filed are username, password and email"));
         }
 
-        if(!validator.isEmail(req.body.email)) next(new UserFailedToUpdateError("Invalid email"));
+        if (!validator.isEmail(req.body.email)) next(new UserFailedToUpdateError("Invalid email"));
 
         const result = await dbLib.updateObjectByFilter(
             db, 'user',
@@ -101,6 +106,10 @@ router.post('/', async (req, res, next) => {
 });
 
 router.delete('/:username', async (req, res, next) => {
+    if (req.params.username !== req.decoded.username) {
+        return next(new UsernameNotMatchError("You can only update your own account"));
+    }
+
     try {
         const db = await dbLib.getDb();
         const results = await dbLib.deleteObjectByFilter(db, 'user', {username: req.params.username});

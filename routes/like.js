@@ -1,6 +1,7 @@
 const dbLib = require("../db/dbFunction");
 const {LikeFailedToGetError} = require("../errors/likeError");
 const express = require("express");
+const {UsernameNotMatchError} = require("../errors/loginError");
 
 const router = express.Router();
 
@@ -45,12 +46,16 @@ router.post('/like', async (req, res, next) => {
         return next(new LikeFailedToGetError('Missing required fields'));
     }
 
+    if (req.body.userLike !== req.decoded.username) {
+        return next(new UsernameNotMatchError("You can't like this post"));
+    }
+
     try {
         const db = await dbLib.getDb();
 
         const post = await dbLib.getObjectByFilter(db, 'post', {_id: req.body.postId});
         const username = await dbLib.getObjectByFilter(db, 'user', {username: req.body.userLike});
-        if(!post || !username) return next(new LikeFailedToGetError('Post or username does not exist'));
+        if (!post || !username) return next(new LikeFailedToGetError('Post or username does not exist'));
 
         let existed = await dbLib.getObjectByFilter(
             db, 'like',
@@ -78,12 +83,16 @@ router.post('/unlike', async (req, res, next) => {
         return next(new LikeFailedToGetError('Missing required fields'));
     }
 
+    if (req.body.userLike !== req.decoded.username) {
+        return next(new UsernameNotMatchError("You can't unlike this post"));
+    }
+
     try {
         const db = await dbLib.getDb();
 
         const post = await dbLib.getObjectByFilter(db, 'post', {_id: req.body.postId});
         const username = await dbLib.getObjectByFilter(db, 'user', {username: req.body.userLike});
-        if(!post || !username) return next(new LikeFailedToGetError('Post or username does not exist'));
+        if (!post || !username) return next(new LikeFailedToGetError('Post or username does not exist'));
 
 
         let existed = await dbLib.getObjectByFilter(
