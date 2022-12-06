@@ -14,6 +14,14 @@ class LoginFailedError extends Error {
     }
 }
 
+class ToManyFailedError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'ToManyFailedError';
+        this.status = 429;
+    }
+}
+
 class UsernameNotMatchError extends Error {
     constructor(message) {
         super(message);
@@ -22,4 +30,4 @@ class UsernameNotMatchError extends Error {
     }
 }
 
-module.exports = {LoginServerError, LoginFailedError, UsernameNotMatchError};
+module.exports = {LoginServerError, LoginFailedError, UsernameNotMatchError, ToManyFailedError};
