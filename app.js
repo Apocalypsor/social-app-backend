@@ -3,7 +3,8 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const cors = require("cors");
+const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const indexRouter = require('./routes/index');
 const userRouter = require('./routes/user');
 const followerRouter = require('./routes/follow');
@@ -11,7 +12,8 @@ const likeRouter = require('./routes/like');
 const postRouter = require('./routes/post');
 const commentRouter = require('./routes/comment');
 const saveRouter = require('./routes/save');
-const {loginRouter} = require('./routes/login');
+const loginRouter = require('./routes/login');
+const {unless, checkJwtSecret} = require("./util/tool");
 
 const app = express()
 
@@ -21,6 +23,43 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+// check jwt token
+checkJwtSecret();
+
+app.use(unless(
+    [
+        '/api/user',
+        '/api/auth/login',
+        '/api/save/serve',
+    ],
+    [
+        'POST',
+        'POST',
+        '*',
+    ],
+    (req, res, next) => {
+        // check header or url parameters or post parameters for token
+        const token = req.headers.token;
+        if (token) {
+            jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
+                if (err) {
+                    return res.status(403).json({success: false, message: 'Failed to authenticate token.'});
+                } else {
+                    // if everything is good, save to request for use in other routes
+                    req.decoded = decoded;
+                    next();
+                }
+            });
+        } else {
+            // if there is no token
+            // return an error
+            return res.status(403).send({
+                success: false,
+                message: 'No token provided.'
+            });
+        }
+    }));
 
 
 // router

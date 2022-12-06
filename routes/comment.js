@@ -2,7 +2,7 @@ const dbLib = require("../db/dbFunction");
 const {CommentNotFoundError, CommentFailedToCreateError, CommentFailedToUpdateError, CommentFailedToDeleteError} = require("../errors/commentError");
 const {ObjectNotFoundError} = require("../errors/databaseError");
 const express = require("express");
-const {LikeFailedToGetError} = require("../errors/likeError");
+const {UsernameNotMatchError} = require("../errors/loginError");
 
 const router = express.Router();
 
@@ -41,10 +41,13 @@ router.post('/', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
         if (req.body.postId && req.body.username) {
+            if (req.body.username !== req.decoded.username) {
+                return next(new UsernameNotMatchError("You can only create comment with your username"));
+            }
 
             const post = await dbLib.getObjectByFilter(db, 'post', {_id: req.body.postId});
             const username = await dbLib.getObjectByFilter(db, 'user', {username: req.body.username});
-            if(!post || !username) return next(new CommentFailedToCreateError('Post or username does not exist'));
+            if (!post || !username) return next(new CommentFailedToCreateError('Post or username does not exist'));
 
 
             const results = await dbLib.addObject(db, 'comment', req.body);
@@ -63,6 +66,10 @@ router.post('/', async (req, res, next) => {
 router.put('/:id', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
+        if (req.body.username !== req.decoded.username) {
+            return next(new UsernameNotMatchError("You can only update comment with your username"));
+        }
+
         const results = await dbLib.updateObjectById(db, 'comment', req.params.id, req.body);
 
         res.status(200).json({
@@ -77,6 +84,11 @@ router.put('/:id', async (req, res, next) => {
 router.delete('/:id', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
+        const comment = await dbLib.getObjectById(db, 'comment', req.params.id);
+        if (comment.username !== req.decoded.username) {
+            return next(new UsernameNotMatchError("You can only delete comment with your username"));
+        }
+
         const results = await dbLib.deleteObjectById(db, 'comment', req.params.id);
 
         res.status(200).json({

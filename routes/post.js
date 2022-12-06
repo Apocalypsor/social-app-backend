@@ -7,6 +7,7 @@ const {
 } = require('../errors/postError');
 const {ObjectNotFoundError} = require("../errors/databaseError");
 const express = require("express");
+const {UsernameNotMatchError} = require("../errors/loginError");
 
 const router = express.Router();
 
@@ -36,7 +37,7 @@ router.get('/username/:username', async (req, res, next) => {
             results = await dbLib.getObjectsByFilter(db, 'post', {username: req.params.username});
             res.status(200).json({
                 success: true,
-                data: results.sort((a, b) => b.updatedAt - a.updatedAt)
+                data: results.sort((a, b) => a.createdAt < b.createdAt).reverse()
             });
         } else {
             next(new PostNotFoundError("Missing username."))
@@ -61,7 +62,7 @@ router.get('/page/:page', async (req, res, next) => {
                 limitNum: parseInt(limitNum)
             }
 
-            const results = await dbLib.getObjectsByFilterOptionAndPage(db, 'post', {}, option, pageObj);
+            const results = await dbLib.getObjectsByFilterOptionAndPage(db, 'post', {public: true}, option, pageObj);
             res.status(200).json({
                 success: true,
                 data: results
@@ -84,18 +85,26 @@ router.post('/', async (req, res, next) => {
         if (req.body) {
             if (req.body instanceof Array) {
                 const username = req.body[0].username;
-                const userResp = await dbLib.getObjectByFilter(db, 'user', {username: username});
-                if(!userResp) return next(new PostFailedToCreateError("Username not found"));
+                if (username !== req.decoded.username) {
+                    return next(new UsernameNotMatchError("You can only create post for yourself."));
+                }
 
-                for(let postItem of req.body) {
-                    if(postItem.username !== username) return next(new PostFailedToCreateError("Username should be the same"));
+                const userResp = await dbLib.getObjectByFilter(db, 'user', {username: username});
+                if (!userResp) return next(new PostFailedToCreateError("Username not found"));
+
+                for (let postItem of req.body) {
+                    if (postItem.username !== username) return next(new PostFailedToCreateError("Username should be the same"));
                 }
 
                 results = await dbLib.addObjects(db, 'post', req.body);
             } else {
-                if(Object.keys(req.body).length === 0) return next(new PostFailedToCreateError("Missing post body"));
+                if (Object.keys(req.body).length === 0) return next(new PostFailedToCreateError("Missing post body"));
+                if (req.body.username !== req.decoded.username) {
+                    return next(new UsernameNotMatchError("You can only create post for yourself."));
+                }
+
                 const userResp = await dbLib.getObjectByFilter(db, 'user', {username: req.body.username});
-                if(!userResp) return next(new PostFailedToCreateError("Username not found"));
+                if (!userResp) return next(new PostFailedToCreateError("Username not found"));
 
                 results = await dbLib.addObject(db, 'post', req.body);
             }
@@ -116,6 +125,10 @@ router.post('/', async (req, res, next) => {
 router.put('/:id', async (req, res, next) => {
     if (!req.body || Object.keys(req.body).length === 0) {
         return next(new PostFailedToUpdateError("Missing post body"));
+    }
+
+    if (req.body.username !== req.decoded.username) {
+        return next(new UsernameNotMatchError("You can only update post for yourself."));
     }
 
     try {
@@ -139,6 +152,11 @@ router.put('/:id', async (req, res, next) => {
 router.delete('/:id', async (req, res, next) => {
     try {
         const db = await dbLib.getDb();
+        const post = await dbLib.getObjectById(db, 'post', req.params.id);
+        if (post.username !== req.decoded.username) {
+            return next(new UsernameNotMatchError("You can only delete post for yourself."));
+        }
+
         const results = await dbLib.deleteObjectById(db, 'post', req.params.id);
         res.status(200).json({
             success: true,
