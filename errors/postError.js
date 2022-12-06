@@ -2,7 +2,7 @@ class PostNotFoundError extends Error {
     constructor(message) {
         super(message);
         this.name = 'PostNotFoundError';
-        this.status = 500;
+        this.status = 404;
     }
 }
 
