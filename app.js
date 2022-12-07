@@ -13,7 +13,7 @@ const postRouter = require('./routes/post');
 const commentRouter = require('./routes/comment');
 const saveRouter = require('./routes/save');
 const loginRouter = require('./routes/login');
-const {unless, checkJwtSecret} = require("./util/tool");
+const {unless, getJwtSecret} = require("./util/tool");
 
 const app = express()
 
@@ -25,15 +25,15 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // check jwt token
-checkJwtSecret();
-
 app.use(unless(
     [
         '/api/user',
         '/api/auth/login',
+        '/api/auth/register',
         '/api/save/serve',
     ],
     [
+        'POST',
         'POST',
         'POST',
         '*',
@@ -42,7 +42,7 @@ app.use(unless(
         // check header or url parameters or post parameters for token
         const token = req.headers.token;
         if (token) {
-            jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
+            jwt.verify(token, getJwtSecret(), function (err, decoded) {
                 if (err) {
                     return res.status(403).json({success: false, message: 'Failed to authenticate token.'});
                 } else {

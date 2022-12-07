@@ -84,27 +84,6 @@ router.put('/:username', async (req, res, next) => {
     }
 });
 
-
-router.post('/', async (req, res, next) => {
-    try {
-        const db = await dbLib.getDb();
-        // check the req.body
-        if(!req.body.username || !req.body.password || !req.body.email){
-            next(new UserFailedToUpdateError("Missing required fields. The required filed are username, password and email"));
-        }
-
-        if(!validator.isEmail(req.body.email)) next(new UserFailedToUpdateError("Invalid email"));
-
-        const results = await dbLib.addObject(db, 'user', req.body);
-        res.status(200).json({
-            success: true,
-            data: results
-        });
-    } catch {
-        next(new UserFailedToCreateError('User failed to create'));
-    }
-});
-
 router.delete('/:username', async (req, res, next) => {
     if (req.params.username !== req.decoded.username) {
         return next(new UsernameNotMatchError("You can only update your own account"));
