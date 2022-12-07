@@ -2,6 +2,8 @@ const express = require('express');
 const dbLib = require('../db/dbFunction');
 const jwt = require('jsonwebtoken');
 const {LoginFailedError, LoginServerError, ToManyFailedError} = require('../errors/loginError');
+const {UserFailedToUpdateError, UserFailedToCreateError} = require("../errors/userError");
+const validator = require("validator");
 const bouncer = require('express-bouncer')(10000, 20000, 3);
 
 
@@ -36,6 +38,7 @@ router.post('/login', bouncer.block, async (req, res, next) => {
             res.json({
                 success: true,
                 data: {
+                    username: username,
                     profilePicture: user.profilePicture,
                     token: token
                 }
@@ -47,5 +50,41 @@ router.post('/login', bouncer.block, async (req, res, next) => {
         next(new LoginServerError('Server Error'));
     }
 });
+
+
+router.post('/register', async (req, res, next) => {
+    try {
+        // console.log("start register");
+
+        const db = await dbLib.getDb();
+        // check the req.body
+        if (!req.body.username || !req.body.password || !req.body.email) {
+            next(new UserFailedToUpdateError("Missing required fields. The required filed are username, password and email"));
+        }
+
+        if (!validator.isEmail(req.body.email)) next(new UserFailedToUpdateError("Invalid email"));
+        const results = await dbLib.addObject(db, 'user', req.body);
+
+        console.log("results", JSON.stringify(results));
+
+        // token
+        // Create token and send it to client
+        const token = jwt.sign({
+            username: req.body.username
+        }, jwtSecret, {expiresIn: '6h'});
+
+        res.json({
+            success: true,
+            data: {
+                username: req.body.username,
+                profilePicture: results.profilePicture,
+                token: token
+            }
+        });
+    } catch {
+        next(new UserFailedToCreateError('User failed to create'));
+    }
+});
+
 
 module.exports = router;
