@@ -14,3 +14,31 @@ Content-Type: application/json
   "username": "demo",
   "password": "1234567"
 }
+
+###
+POST localhost:4000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testUsername",
+  "firstName": "testFirstname",
+  "lastName": "testLastname",
+  "email": "testEmail@gmail.com",
+  "password": "hT2uE1HybohrizE",
+  "profilePicture": "https://ui-avatars.com/api/?rounded=true"
+}
+
+
+###
+
+POST localhost:4000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "Stephanie112121Adams",
+  "firstName": "Talon1",
+  "lastName": "Altenwerth1",
+  "email": "Casey42@gmail.com",
+  "password": "hT2uE1HybohrizE",
+  "profilePicture": "https://ui-avatars.com/api/?rounded=true"
+}

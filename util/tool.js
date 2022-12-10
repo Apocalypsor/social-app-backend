@@ -35,8 +35,6 @@ function unless(path, method, middleware) {
 }
 
 function checkJwtSecret() {
-    if (process.env.JWT_SECRET) return;
-
     if (!process.env.JWT_SECRET) {
         console.log('JWT_SECRET is not set');
         fs.appendFileSync('.env', '\nJWT_SECRET=' + jwtSecret);
@@ -48,4 +46,4 @@ function getJwtSecret() {
     return process.env.JWT_SECRET || jwtSecret;
 }
 
-module.exports = {randomString, unless, checkJwtSecret, getJwtSecret};
+module.exports = {unless, checkJwtSecret, getJwtSecret};

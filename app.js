@@ -29,9 +29,11 @@ app.use(unless(
     [
         '/api/user',
         '/api/auth/login',
+        '/api/auth/register',
         '/api/save/serve',
     ],
     [
+        'POST',
         'POST',
         'POST',
         '*',
