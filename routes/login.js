@@ -1,7 +1,6 @@
 const express = require('express');
 const dbLib = require('../db/dbFunction');
 const jwt = require('jsonwebtoken');
-const {LoginFailedError, LoginServerError, ToManyFailedError} = require('../errors/loginError');
 const {UserFailedToUpdateError, UserFailedToCreateError} = require("../errors/userError");
 const validator = require("validator");
 const {LoginFailedError, LoginServerError} = require('../errors/loginError');
@@ -56,8 +55,6 @@ router.post('/login', bouncer.block, async (req, res, next) => {
 
 router.post('/register', async (req, res, next) => {
     try {
-        // console.log("start register");
-
         const db = await dbLib.getDb();
         // check the req.body
         if (!req.body.username || !req.body.password || !req.body.email) {

@@ -46,4 +46,4 @@ function getJwtSecret() {
     return process.env.JWT_SECRET || jwtSecret;
 }
 
-module.exports = {randomString, unless, checkJwtSecret, getJwtSecret};
+module.exports = {unless, checkJwtSecret, getJwtSecret};
