@@ -35,7 +35,6 @@ function unless(path, method, middleware) {
 }
 
 function checkJwtSecret() {
-    if (process.env.JWT_SECRET) return;
     if (!process.env.JWT_SECRET) {
         console.log('JWT_SECRET is not set');
         fs.appendFileSync('.env', '\nJWT_SECRET=' + jwtSecret);

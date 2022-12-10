@@ -8,8 +8,10 @@ let app = require('../app');
 let debug = require('debug')('project---backend-group-x:server');
 let http = require('http');
 const dbLib = require("../db/dbFunction");
+const {checkJwtSecret} = require("../util/tool");
 
 require('dotenv').config();
+checkJwtSecret();
 
 /**
  * Get port from environment and store in Express.
