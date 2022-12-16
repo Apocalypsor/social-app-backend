@@ -57,9 +57,9 @@ describe('TEST save endpoints', () => {
             .send({formDataOne});
 
 
-        expect(res.status).toBe(500);
+        expect(res.status).toBe(403);
         expect(res._body.success).toBe(false);
-        expect(res._body.message).toBe("File not found");
+        expect(res._body.message).toBe("No token provided.");
     });
 
     test('Test POST /save/multiple endpoint', async () => {
@@ -68,9 +68,9 @@ describe('TEST save endpoints', () => {
             .send({formDataOne});
 
 
-        expect(res.status).toBe(500);
+        expect(res.status).toBe(403);
         expect(res._body.success).toBe(false);
-        expect(res._body.message).toBe("Error saving file");
+        expect(res._body.message).toBe("No token provided.");
     });
 
 

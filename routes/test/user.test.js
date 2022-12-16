@@ -13,6 +13,9 @@ describe("Test user endpoints", () => {
     let res;
     let db;
     let actualUser;
+
+    let token;
+
     const expectedUser = {
         username: 'testUser',
         password: 'testPassword',
@@ -32,7 +35,7 @@ describe("Test user endpoints", () => {
             db = await dbLib.getDb();
 
             res = (await request(webapp)
-                .post(endpoint)
+                .post("/api/auth/register")
                 .send({
                     username: 'testUser',
                     password: 'testPassword',
@@ -43,6 +46,11 @@ describe("Test user endpoints", () => {
                 })
                 .set('Accept', 'application/json'));
             // res = JSON.parse(res.text);
+
+            // console.log(res.body);
+            token = res.body.data.token;
+
+            actualUser = await db.collection('user').findOne({username: res.body.data.username});
 
 
             if (res._body.success) {
@@ -86,6 +94,7 @@ describe("Test user endpoints", () => {
         }
     };
 
+
     /**
      *  Test GET /user endpoint
      * */
@@ -94,7 +103,8 @@ describe("Test user endpoints", () => {
     test("GET /user/:username", async () => {
         const res = await request(webapp)
             .get(endpoint + `${actualUser.username}`)
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
 
 
         expect(res.header["content-type"]).toMatch(/json/);
@@ -105,7 +115,8 @@ describe("Test user endpoints", () => {
         // Test no username.
         const tmpRes = await request(webapp)
             .get(endpoint + '')
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
         expect(tmpRes.status).toEqual(404);
     });
 
@@ -114,7 +125,8 @@ describe("Test user endpoints", () => {
     test("GET /user/search/:username", async () => {
         const res = await request(webapp)
             .get(endpoint + `search/${actualUser.username}`)
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
 
         expect(res.header["content-type"]).toMatch(/json/);
         expect(res.status).toEqual(200);
@@ -124,50 +136,25 @@ describe("Test user endpoints", () => {
         // No need to test Wrong Username.
         const tmpRes = await request(webapp)
             .get(endpoint + 'search/')
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
         expect(tmpRes.status).toEqual(404);
     });
 
-    /**
-     *  Test POST /user
-     * */
-    test("POST /user", async () => {
-        // Status code and content type
-        expect(res.status).toBe(200);
-        expect(res.type).toBe('application/json');
-
-        // Response body
-        expect(res._body).toMatchObject(expectedResp);
-    })
     // Test user in the database
     test("Test user in the database", async () => {
-        const insertedUser = await db.collection('user').findOne({_id: ObjectId(actualUser._id)});
-        expect(insertedUser).toMatchObject(expectedUser);
+        expect(actualUser).toMatchObject({
+            username: expectedUser.username,
+            profilePicture: 'https://ui-avatars.com/api/?rounded=true'
+        });
     });
 
-    // Test missing a field.
-    test("POST /user missing a field", async () => {
-        const tmpRes = (await request(webapp)
-            .post(endpoint)
-            .send({
-                username: 'testUser2',
-                password: 'testPassword2',
-                // email: 'testEmail2@gmail.com',
-                firstName: 'testFirstName2',
-                lastName: 'testLastName2',
-                profilePicture: "https://ui-avatars.com/api/?rounded=true"
-            })
-            .set('Accept', 'application/json'));
-        const tmpResJson = JSON.parse(tmpRes.text);
-        expect(tmpResJson.success).toBe(false);
-        expect(tmpRes.status).toBe(500);
-    });
 
     // Test PUT /user/:username endpoint
     test("PUT /user/:username", async () => {
 
-        const postRes = (await request(webapp)
-            .post(endpoint)
+        let postRes = (await request(webapp)
+            .post("/api/auth/register")
             .send({
                 username: 'testUser2',
                 password: 'testPassword2',
@@ -179,9 +166,9 @@ describe("Test user endpoints", () => {
             .set('Accept', 'application/json'));
         // Check if successfully post a new user.
         expect(postRes.status).toBe(200);
+        const token2 = postRes.body.data.token;
 
         const putDeleteUsername = 'testUser2';
-        const putDeleteUserId = postRes._body.data._id;
 
         const putRes = (await request(webapp)
             .put(endpoint + `${putDeleteUsername}`)
@@ -189,8 +176,9 @@ describe("Test user endpoints", () => {
                 username: 'testUser2',
                 password: 'testPassword2',
                 email: 'updatedEmail@gmail.com'
-            }));
+            }).set('token', token2));
         // Type and status code check
+
         expect(putRes.status).toBe(200);
         expect(putRes.type).toBe('application/json');
 
@@ -198,10 +186,6 @@ describe("Test user endpoints", () => {
         expect(putRes._body.success).toBe(true);
         expect(putRes._body.data).toMatchObject({
             username: 'testUser2',
-            password: 'testPassword2',
-            email: 'updatedEmail@gmail.com',
-            firstName: 'testFirstName2',
-            lastName: 'testLastName2',
             profilePicture: "https://ui-avatars.com/api/?rounded=true"
         });
 
@@ -209,19 +193,12 @@ describe("Test user endpoints", () => {
         // Check missing body error
         const putRes2 = (await request(webapp)
             .put(endpoint + `${putDeleteUsername}`)
-            .send({}));
+            .send({username: 'testUser2'})
+            .set('token', token2));
+
         expect(putRes2.status).toBe(500);
         expect(putRes2._body.success).toBe(false);
 
-        // Missing username error
-        const putRes3 = (await request(webapp)
-            .put(endpoint + `${putDeleteUsername}`)
-            .send({
-                password: 'testPassword2',
-                email: 'updatedEmail@gmail.com',
-            }));
-        expect(putRes3.status).toBe(500);
-        expect(putRes3._body.success).toBe(false);
 
         // Missing password error
         const putRes4 = (await request(webapp)
@@ -229,7 +206,8 @@ describe("Test user endpoints", () => {
             .send({
                 username: 'testUser2',
                 email: 'updatedEmail@gmail.com',
-            }));
+            })
+            .set('token', token2));
         expect(putRes4.status).toBe(500);
         expect(putRes4._body.success).toBe(false);
 
@@ -239,13 +217,14 @@ describe("Test user endpoints", () => {
             .send({
                 username: 'testUser2',
                 password: 'testPassword2',
-            }));
+            })
+            .set('token', token2));
         expect(putRes5.status).toBe(500);
         expect(putRes5._body.success).toBe(false);
 
 
         // Check if the user is updated in the database
-        const updatedUser = await db.collection('user').findOne({_id: ObjectId(putDeleteUserId)});
+        const updatedUser = await db.collection('user').findOne({username: `${putDeleteUsername}`});
         expect(updatedUser).toMatchObject({
             username: 'testUser2',
             password: 'testPassword2',
@@ -256,7 +235,7 @@ describe("Test user endpoints", () => {
         });
 
         // Delete the user
-        const deleteUser = await db.collection('user').deleteOne({_id: ObjectId(putDeleteUserId)});
+        const deleteUser = await db.collection('user').deleteOne({username: `${putDeleteUsername}`});
         expect(deleteUser.deletedCount).toBe(1);
     });
 
@@ -264,7 +243,7 @@ describe("Test user endpoints", () => {
     test("DELETE /user/:username", async () => {
         // Create a new user
         const postRes = (await request(webapp)
-            .post(endpoint)
+            .post('/api/auth/register')
             .send({
                 username: 'testUser2',
                 password: 'testPassword2',
@@ -277,16 +256,18 @@ describe("Test user endpoints", () => {
         expect(postRes.status).toBe(200);
 
         const putDeleteUsername = 'testUser2';
-        const putDeleteUserId = postRes._body.data._id;
+        const putDeleteToken = postRes.body.data.token;
 
         // Test wrong username error
         const deleteRes = (await request(webapp)
-            .delete(endpoint + 'wrongUsername'));
-        expect(deleteRes.status).toBe(500);
+            .delete(endpoint + 'wrongUsername')
+            .set('token', putDeleteToken));
+        expect(deleteRes.status).toBe(403);
 
         // Successfully delete
         const deleteRes2 = (await request(webapp)
-            .delete(endpoint + `${putDeleteUsername}`));
+            .delete(endpoint + `${putDeleteUsername}`)
+            .set('token', putDeleteToken));
 
         expect(deleteRes2.status).toBe(200);
         expect(deleteRes2.type).toBe('application/json');
@@ -301,7 +282,7 @@ describe("Test user endpoints", () => {
         });
 
         // Check if the user is deleted from the database
-        const deletedUser = await db.collection('user').findOne({_id: putDeleteUserId});
+        const deletedUser = await db.collection('user').findOne({username: `${putDeleteUsername}`});
         expect(deletedUser).toBeNull();
     });
 })

@@ -5,6 +5,14 @@ const dbLib = require('../../db/dbFunction');
 const endpoint = '/api/follow/';
 let mongo;
 
+let token;
+let token2;
+
+let token3;
+let token4;
+let token5;
+let token6;
+
 
 // Test the follow endpoints
 describe('Test the follow endpoints', () => {
@@ -54,20 +62,30 @@ describe('Test the follow endpoints', () => {
         }
 
 
-        await request(webapp)
-            .post('/api/user/')
+        const resp = await request(webapp)
+            .post('/api/auth/register')
             .send(user1)
             .set('Accept', 'application/json');
-        await request(webapp)
-            .post('/api/user/')
+
+        token = resp.body.data.token;
+
+        const resp2 = await request(webapp)
+            .post('/api/auth/register')
             .send(user2)
             .set('Accept', 'application/json');
+
+        token2 = resp2.body.data.token;
     });
 
     afterEach(async () => {
         // delete the two users
         await db.collection('user').deleteMany({});
         await db.collection('follow').deleteMany({});
+    });
+
+    test('Test /follow endpoint', async () => {
+        console.log(token);
+        console.log(token2);
     });
 
     // Test follow endpoint
@@ -77,7 +95,8 @@ describe('Test the follow endpoints', () => {
         const res = (await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser2", follower: "testUser1"})
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
 
         expect(res.statusCode).toEqual(200);
         expect(res._body.success).toEqual(true);
@@ -92,15 +111,17 @@ describe('Test the follow endpoints', () => {
         const tmpRes = (await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser2", follower: "testUser3"})
-            .set('Accept', 'application/json'));
-        expect(tmpRes.statusCode).toEqual(500);
+            .set('Accept', 'application/json')
+            .set('token', token));
+        expect(tmpRes.statusCode).toEqual(403);
 
         // Test missing username
         const tmpRes2 = (await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser2"})
-            .set('Accept', 'application/json'));
-        expect(tmpRes2.statusCode).toEqual(500);
+            .set('Accept', 'application/json')
+            .set('token', token));
+        expect(tmpRes2.statusCode).toEqual(404);
 
         // Delete the follow
         await db.collection('follow').findOneAndDelete({following: "testUser2", follower: "testUser1"});
@@ -114,7 +135,8 @@ describe('Test the follow endpoints', () => {
         await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser2", follower: "testUser1"})
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
 
         // Check the database
         const followRes = await db.collection('follow').findOne({following: "testUser2", follower: "testUser1"});
@@ -126,21 +148,24 @@ describe('Test the follow endpoints', () => {
         const tmpRes = (await request(webapp)
             .post(endpoint + 'unfollow')
             .send({following: "testUser2", follower: "testUser3"})
-            .set('Accept', 'application/json'));
-        expect(tmpRes.status).toEqual(500);
+            .set('Accept', 'application/json')
+            .set('token', token));
+        expect(tmpRes.status).toEqual(403);
 
         // Test the missing username
         const tmpRes2 = (await request(webapp)
             .post(endpoint + 'unfollow')
             .send({following: "testUser2"})
-            .set('Accept', 'application/json'));
-        expect(tmpRes2.status).toEqual(500);
+            .set('Accept', 'application/json')
+            .set('token', token));
+        expect(tmpRes2.status).toEqual(404);
 
         // Unfollow user2 by user1
         const unfollowResp = (await request(webapp)
             .post(endpoint + 'unfollow')
             .send({following: "testUser2", follower: "testUser1"})
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
 
         // Check the resp status
         expect(unfollowResp.status).toEqual(200);
@@ -159,7 +184,8 @@ describe('Test the follow endpoints', () => {
         await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser2", follower: "testUser1"})
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
 
         // Check the database
         const followRes = await db.collection('follow').findOne({following: "testUser2", follower: "testUser1"});
@@ -172,13 +198,15 @@ describe('Test the follow endpoints', () => {
         // Test the missing username
         const tmpRes2 = (await request(webapp)
             .get(endpoint + 'follower-names/')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         expect(tmpRes2.status).toEqual(404);
 
         // Get the follower names
         const followerNamesResp = (await request(webapp)
             .get(endpoint + 'follower-names/testUser2')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
 
         // Check the resp status
         expect(followerNamesResp.status).toEqual(200);
@@ -189,7 +217,8 @@ describe('Test the follow endpoints', () => {
         const unfollowResp = (await request(webapp)
             .post(endpoint + 'unfollow')
             .send({following: "testUser2", follower: "testUser1"})
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
 
         // Check the resp status
         expect(unfollowResp.status).toEqual(200);
@@ -206,12 +235,14 @@ describe('Test the follow endpoints', () => {
         await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser2", follower: "testUser1"})
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
 
         // Test following count
         const followingCountResp1 = (await request(webapp)
             .get(endpoint + 'following-count/testUser1')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         // Type check
         expect(followingCountResp1.status).toEqual(200);
         expect(followingCountResp1.type).toEqual('application/json');
@@ -222,7 +253,8 @@ describe('Test the follow endpoints', () => {
 
         const followingCountResp2 = (await request(webapp)
             .get(endpoint + 'following-count/testUser2')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         // Type check
         expect(followingCountResp2.status).toEqual(200);
         expect(followingCountResp2.type).toEqual('application/json');
@@ -234,7 +266,8 @@ describe('Test the follow endpoints', () => {
         // Test follower count
         const followerCountResp1 = (await request(webapp)
             .get(endpoint + 'follower-count/testUser1')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         // Type check
         expect(followerCountResp1.status).toEqual(200);
         expect(followerCountResp1.type).toEqual('application/json');
@@ -245,7 +278,8 @@ describe('Test the follow endpoints', () => {
 
         const followerCountResp2 = (await request(webapp)
             .get(endpoint + 'follower-count/testUser2')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         // Type check
         expect(followerCountResp2.status).toEqual(200);
         expect(followerCountResp2.type).toEqual('application/json');
@@ -258,12 +292,14 @@ describe('Test the follow endpoints', () => {
         await request(webapp)
             .post(endpoint + 'unfollow')
             .send({following: "testUser2", follower: "testUser1"})
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
 
         // Following count check
         const followingCountResp3 = (await request(webapp)
             .get(endpoint + 'following-count/testUser1')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         // Type check
         expect(followingCountResp3.status).toEqual(200);
         expect(followingCountResp3.type).toEqual('application/json');
@@ -274,7 +310,8 @@ describe('Test the follow endpoints', () => {
 
         const followingCountResp4 = (await request(webapp)
             .get(endpoint + 'following-count/testUser2')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         // Type check
         expect(followingCountResp4.status).toEqual(200);
         expect(followingCountResp4.type).toEqual('application/json');
@@ -286,7 +323,8 @@ describe('Test the follow endpoints', () => {
         // Follower Count check
         const followerCountResp3 = (await request(webapp)
             .get(endpoint + 'follower-count/testUser2')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         // Type check
         expect(followerCountResp3.status).toEqual(200);
         expect(followerCountResp3.type).toEqual('application/json');
@@ -297,7 +335,8 @@ describe('Test the follow endpoints', () => {
 
         const followerCountResp4 = (await request(webapp)
             .get(endpoint + 'follower-count/testUser1')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
 
         // Type check
         expect(followerCountResp4.status).toEqual(200);
@@ -314,7 +353,8 @@ describe('Test the follow endpoints', () => {
         // Test missing username
         const followingCountResp6 = (await request(webapp)
             .get(endpoint + 'following-count/')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         // Type check
         expect(followingCountResp6.status).toEqual(404);
 
@@ -322,7 +362,8 @@ describe('Test the follow endpoints', () => {
         // Test missing username
         const followerCountResp6 = (await request(webapp)
             .get(endpoint + 'follower-count/')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         // Type check
         expect(followerCountResp6.status).toEqual(404);
 
@@ -335,12 +376,14 @@ describe('Test the follow endpoints', () => {
         await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser2", follower: "testUser1"})
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
 
         // Test is following
         const isFollowingResp1 = (await request(webapp)
             .get(endpoint + 'is-following/testUser1/testUser2')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         // Type check
         expect(isFollowingResp1.status).toEqual(200);
         expect(isFollowingResp1.type).toEqual('application/json');
@@ -351,7 +394,8 @@ describe('Test the follow endpoints', () => {
 
         const isFollowingResp2 = (await request(webapp)
             .get(endpoint + 'is-following/testUser2/testUser1')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         // Type check
         expect(isFollowingResp2.status).toEqual(200);
         expect(isFollowingResp2.type).toEqual('application/json');
@@ -364,7 +408,8 @@ describe('Test the follow endpoints', () => {
         // Test missing username
         const isFollowingResp4 = (await request(webapp)
             .get(endpoint + 'is-following/testUser1/')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         // Type check
         expect(isFollowingResp4.status).toEqual(404);
 
@@ -408,63 +453,82 @@ describe('Test the follow endpoints', () => {
         };
 
         // Create users
-        await request(webapp)
-            .post('/api/user')
+        const resp3 = await request(webapp)
+            .post('/api/auth/register')
             .send(user3)
             .set('Accept', 'application/json');
-        await request(webapp)
-            .post('/api/user')
+
+        token3 = resp3.body.data.token;
+
+        const resp4 = await request(webapp)
+            .post('/api/auth/register')
             .send(user4)
             .set('Accept', 'application/json');
-        await request(webapp)
-            .post('/api/user')
+
+        token4 = resp4.body.data.token;
+
+        const resp5 = await request(webapp)
+            .post('/api/auth/register')
             .send(user5)
             .set('Accept', 'application/json');
-        await request(webapp)
-            .post('/api/user')
+
+        token5 = resp5.body.data.token;
+
+        const resp6 = await request(webapp)
+            .post('/api/auth/register')
             .send(user6)
             .set('Accept', 'application/json');
 
+        token6 = resp6.body.data.token;
 
         // user1 follows user2, user3, user4, user5
         await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser2", follower: "testUser1"})
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
         await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser3", follower: "testUser1"})
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
         await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser4", follower: "testUser1"})
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
         await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser5", follower: "testUser1"})
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
         // user2 follows user3, user4, user5, user6
         await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser3", follower: "testUser2"})
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token2);
         await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser4", follower: "testUser2"})
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token2);
         await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser5", follower: "testUser2"})
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token2);
         await request(webapp)
             .post(endpoint + 'follow')
             .send({following: "testUser6", follower: "testUser2"})
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token2);
 
         // Check the suggestions
         const followSuggestionsResp1 = (await request(webapp)
             .get(endpoint + 'suggestions/testUser1')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         // Type check
         expect(followSuggestionsResp1.status).toEqual(200);
         expect(followSuggestionsResp1.type).toEqual('application/json');
@@ -478,10 +542,12 @@ describe('Test the follow endpoints', () => {
         await request(webapp)
             .post(endpoint + 'unfollow')
             .send({following: "testUser2", follower: "testUser1"})
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
         const followSuggestionsResp2 = (await request(webapp)
             .get(endpoint + 'suggestions/testUser1')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         // Type check
         expect(followSuggestionsResp2.status).toEqual(200);
         expect(followSuggestionsResp2.type).toEqual('application/json');
@@ -496,7 +562,8 @@ describe('Test the follow endpoints', () => {
         // Check the suggestions for testUser2
         const followSuggestionsResp3 = (await request(webapp)
             .get(endpoint + 'suggestions/testUser2')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         // Type check
         expect(followSuggestionsResp3.status).toEqual(200);
         expect(followSuggestionsResp3.type).toEqual('application/json');
@@ -509,7 +576,8 @@ describe('Test the follow endpoints', () => {
         // Test the missing username
         const followSuggestionsResp5 = (await request(webapp)
             .get(endpoint + 'suggestions/')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         // Type check
         expect(followSuggestionsResp5.status).toEqual(404);
 

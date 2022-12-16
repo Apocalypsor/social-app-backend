@@ -10,6 +10,7 @@ describe('Test the like endpoints', () => {
     let db;
     let postId;
     let username;
+    let token;
 
     beforeAll(async () => {
         try {
@@ -66,6 +67,12 @@ describe('Test the like endpoints', () => {
         username = user1.username;
         postId = postResp.insertedId.toString();
 
+        const resp = await request(webapp)
+            .post('/api/auth/login')
+            .send({username: user1.username, password: user1.password})
+            .set('Accept', 'application/json');
+        token = resp._body.data.token;
+
     });
 
     afterEach(async () => {
@@ -78,6 +85,11 @@ describe('Test the like endpoints', () => {
         }
     });
 
+    test('POST /api/like/ - like a post', async () => {
+
+        console.log(token);
+    });
+
     // Test /like endpoint
     test('Test /like endpoint', async () => {
 
@@ -87,7 +99,8 @@ describe('Test the like endpoints', () => {
                 userLike: username,
                 postId: postId
             })
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
 
 
         // Type and status checking
@@ -108,9 +121,11 @@ describe('Test the like endpoints', () => {
         const likeResp2 = await request(webapp)
             .post(endpoint + "like")
             .send({postId: postId})
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
+
         // Check the status
-        expect(likeResp2.status).toBe(500);
+        expect(likeResp2.status).toBe(404);
         // Check the response body
         expect(likeResp2._body.success).toBe(false);
 
@@ -118,9 +133,9 @@ describe('Test the like endpoints', () => {
         const likeResp3 = await request(webapp)
             .post(endpoint + "like")
             .send({userLike: username, postId: "123"})
-            .set('Accept', 'application/json');
-        // Check the status
-        expect(likeResp3.status).toBe(500);
+            .set('Accept', 'application/json')
+            .set('token', token);
+
         // Check the response body
         expect(likeResp3._body.success).toBe(false);
     });
@@ -138,7 +153,8 @@ describe('Test the like endpoints', () => {
                 userLike: username,
                 postId: postId
             })
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
 
         // Type and status checking
         expect(unlikeResp.status).toBe(200);
@@ -159,9 +175,11 @@ describe('Test the like endpoints', () => {
         const unlikeResp2 = await request(webapp)
             .post(endpoint + "unlike")
             .send({postId: postId})
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
+
         // Check the status
-        expect(unlikeResp2.status).toBe(500);
+        expect(unlikeResp2._body.success).toBe(false);
 
         // Test wrong postId or userLike
         const unlikeResp3 = await request(webapp)
@@ -169,7 +187,7 @@ describe('Test the like endpoints', () => {
             .send({userLike: username, postId: "123"})
             .set('Accept', 'application/json');
         // Check the status
-        expect(unlikeResp3.status).toBe(500);
+        expect(unlikeResp3._body.success).toBe(false);
 
     });
 
@@ -185,7 +203,8 @@ describe('Test the like endpoints', () => {
 
         const isLikeResp = await request(webapp)
             .get(endpoint + "is-like/" + username + "/" + postId)
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
 
         // Type and status checking
         expect(isLikeResp.status).toBe(200);
@@ -203,7 +222,9 @@ describe('Test the like endpoints', () => {
 
         const isLikeResp2 = await request(webapp)
             .get(endpoint + "is-like/" + username + "/" + postId)
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
+
         // Type and status checking
         expect(isLikeResp2.status).toBe(200);
         expect(isLikeResp2.type).toBe('application/json');
@@ -214,14 +235,16 @@ describe('Test the like endpoints', () => {
         // Test wrong postId or userLike
         const isLikeResp3 = await request(webapp)
             .get(endpoint + "is-like/" + username + "/123")
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
         // Check the status
-        expect(isLikeResp3.status).toBe(500);
+        expect(isLikeResp3.status).toBe(404);
 
         // Test missing postId or userLike
         const isLikeResp4 = await request(webapp)
             .get(endpoint + "is-like/" + username)
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
         // Check the status
         expect(isLikeResp4.status).toBe(404);
     });
@@ -238,7 +261,8 @@ describe('Test the like endpoints', () => {
 
         const countLikeResp = await request(webapp)
             .get(endpoint + "count/" + postId)
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token);
 
         // Type and status checking
         expect(countLikeResp.status).toBe(200);
@@ -246,7 +270,6 @@ describe('Test the like endpoints', () => {
         // Check the response body
         expect(countLikeResp._body.success).toBe(true);
         expect(countLikeResp._body.data).toBe(1);
-
 
     });
 

@@ -14,6 +14,10 @@ describe("Test the comment endpoints", () => {
     let commentResp;
     let userId;
 
+    let token;
+    let token2;
+
+
     const post = {
         username: "demo",
         postType: 1,
@@ -72,11 +76,34 @@ describe("Test the comment endpoints", () => {
         const userResp = await db.collection('user').insertOne(user);
         await db.collection('user').insertOne(commentUser);
 
+        const loginInfo = {
+            username: "demo", password: 'testPassword'
+        };
+        const loginInfo2 = {
+            username: "commentUser", password: 'testPassword'
+        };
+
+        const resp = await request(webapp)
+            .post("/api/auth/" + 'login')
+            .send(loginInfo)
+            .set('Accept', 'application/json');
+
+        token = resp.body.data.token;
+
+        const resp2 = await request(webapp)
+            .post("/api/auth/" + 'login')
+            .send(loginInfo2)
+            .set('Accept', 'application/json');
+
+        token2 = resp2.body.data.token;
+
+
         // Create a post.
         res = (await request(webapp)
             .post("/api/post/")
             .send(post)
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
 
 
         postId = res._body.data._id.toString();
@@ -88,7 +115,8 @@ describe("Test the comment endpoints", () => {
         commentResp = (await request(webapp)
             .post(endpoint)
             .send({postId: postId, comment: comment, username: commentUser.username})
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token2));
         commentId = commentResp._body.data._id.toString();
 
     });
@@ -119,16 +147,18 @@ describe("Test the comment endpoints", () => {
         const wrongPostId = (await request(webapp)
             .post(endpoint)
             .send({postId: postId, comment: comment, username: "wrongUsername"})
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
 
         // Type and status check
-        expect(wrongPostId.status).toBe(500);
+        expect(wrongPostId.status).toBe(403);
 
         // Test missing postId or username
         const missingUsername = (await request(webapp)
             .post(endpoint)
             .send({comment: comment})
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
 
         // Type and status check
         expect(missingUsername.status).toBe(500);
@@ -144,14 +174,16 @@ describe("Test the comment endpoints", () => {
         // Test if wrong postId or username
         const res = (await request(webapp)
             .get(endpoint + `${postId}/`)
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
 
         // Type and status check
         expect(res.status).toBe(200);
 
         const res2 = (await request(webapp)
             .get(endpoint + `postId/`)
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
 
         // Type and status check
         expect(res2.status).toBe(404);
@@ -170,14 +202,16 @@ describe("Test the comment endpoints", () => {
         // Test if wrong postId or username
         const res = (await request(webapp)
             .delete(endpoint + `${commentId}/`)
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token2));
 
         // Type and status check
         expect(res.status).toBe(200);
 
         const res2 = (await request(webapp)
             .delete(endpoint + `commentId/`)
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token2));
 
         // Type and status check
         expect(res2.status).toBe(500);

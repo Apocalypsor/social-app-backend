@@ -2,8 +2,10 @@ const request = require('supertest');
 const dbLib = require('../../db/dbFunction');
 const webapp = require('../../app');
 const jwt = require("jsonwebtoken");
-const {jwtSecret} = require('../login');
+const {getJwtSecret} = require("../../util/tool");
+const {addObject} = require("../../db/dbFunction");
 
+const jwtSecret = getJwtSecret();
 const endpoint = "/api/auth/";
 let mongo;
 
@@ -44,10 +46,11 @@ describe("Test the login endpoints", () => {
             profilePicture: "https://ui-avatars.com/api/?rounded=true"
         };
 
-        await request(webapp)
-            .post('/api/user')
-            .send(user1)
-            .set('Accept', 'application/json');
+        await addObject(db, 'user', user1);
+        // await request(webapp)
+        //     .post('/api/user')
+        //     .send(user1)
+        //     .set('Accept', 'application/json');
         // check database
         const user1Db = await dbLib.getObjectByFilter(db, 'user', {username: user1.username});
         expect(user1Db).not.toBeNull();
@@ -76,6 +79,8 @@ describe("Test the login endpoints", () => {
         expect(resp.body.success).toBe(true);
         expect(resp.body.data.profilePicture).toBe("https://ui-avatars.com/api/?rounded=true");
 
+        // console.log(resp._body.data.token);
+        // console.log(jwtSecret);
         jwt.verify(resp._body.data.token, jwtSecret);
     });
 });

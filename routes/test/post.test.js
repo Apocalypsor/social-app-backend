@@ -11,6 +11,7 @@ describe('Test the post endpoints', () => {
     let db;
     let post;
     let postId;
+    let token;
 
     const expectedPost = {
         username: "demo",
@@ -58,10 +59,20 @@ describe('Test the post endpoints', () => {
         // Create a user..lo
         await db.collection('user').insertOne(user);
 
+        const loginResp = await request(webapp)
+            .post('/api/auth/login')
+            .send({username: 'demo', password: 'password'})
+            .set('Accept', 'application/json');
+
+        token = loginResp._body.data.token;
+
+        console.log(loginResp._body);
+
         res = (await request(webapp)
             .post(endpoint)
             .send(expectedPost)
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
 
         if (res._body.success) {
             post = res._body.data;
@@ -81,12 +92,17 @@ describe('Test the post endpoints', () => {
         }
     });
 
+    test('testBefore', async () => {
+        console.log(token);
+    });
+
     // Test the GET /post/:id endpoint
     test('GET /post/:id', async () => {
 
         res = (await request(webapp)
             .get(endpoint + post._id.toString())
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
 
         // Type and status checking
         expect(res.status).toBe(200);
@@ -99,8 +115,9 @@ describe('Test the post endpoints', () => {
         // Test wrong id
         const tmpRes = (await request(webapp)
             .get(endpoint + "123")
-            .set('Accept', 'application/json'));
-        expect(tmpRes.status).toBe(500);
+            .set('Accept', 'application/json')
+            .set('token', token));
+        expect(tmpRes.status).toBe(404);
 
     });
 
@@ -108,7 +125,8 @@ describe('Test the post endpoints', () => {
     test('GET /post/username/:username', async () => {
         const res = (await request(webapp)
             .get(endpoint + 'username/' + post.username)
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
 
         // Type and status checking
         expect(res.status).toBe(200);
@@ -132,6 +150,13 @@ describe('Test the post endpoints', () => {
         }
         await db.collection('user').insertOne(user2);
 
+        const loginResp2 = await request(webapp)
+            .post('/api/auth/login')
+            .send({username: 'demo2', password: 'password'})
+            .set('Accept', 'application/json');
+
+        const token2 = loginResp2._body.data.token;
+
         const secondObj = {
             username: "demo2",
             postType: 1,
@@ -143,12 +168,14 @@ describe('Test the post endpoints', () => {
         await request(webapp)
             .post(endpoint)
             .send(secondObj)
-            .set('Accept', 'application/json');
+            .set('Accept', 'application/json')
+            .set('token', token2);
 
 
         const getRes = (await request(webapp)
             .get(endpoint + 'page/1')
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token2));
 
         // Type and status checking
         expect(getRes.status).toBe(200);
@@ -181,7 +208,8 @@ describe('Test the post endpoints', () => {
         const tmpRes = (await request(webapp)
             .post(endpoint)
             .send({})
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         // Missing post Body
         expect(tmpRes.status).toBe(500);
         expect(tmpRes._body.success).toBe(false);
@@ -190,12 +218,16 @@ describe('Test the post endpoints', () => {
     //Test PUT /post/:id endpoint
     test('PUT /post/:id', async () => {
         const updateObj = {
+            username: "demo",
             description: "Changed description.",
         };
         const putRes = (await request(webapp)
             .put(endpoint + post._id.toString())
             .send(updateObj)
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
+
+        // console.log(putRes._body);
 
         // Type and status checking
         expect(putRes.status).toBe(200);
@@ -229,14 +261,16 @@ describe('Test the post endpoints', () => {
         const tmpRes = (await request(webapp)
             .put(endpoint + "123")
             .send(updateObj)
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         expect(tmpRes.status).toBe(500);
 
         // Test missing body
         const tmpRes2 = (await request(webapp)
             .put(endpoint + post._id.toString())
             .send({})
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         expect(tmpRes2.status).toBe(500);
     });
 
@@ -244,7 +278,8 @@ describe('Test the post endpoints', () => {
     test('DELETE /post/:id', async () => {
         const deleteRes = (await request(webapp)
             .delete(endpoint + post._id.toString())
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
 
 
         // Type and status checking
@@ -258,7 +293,8 @@ describe('Test the post endpoints', () => {
         // Test wrong id
         const tmpRes = (await request(webapp)
             .delete(endpoint + "123")
-            .set('Accept', 'application/json'));
+            .set('Accept', 'application/json')
+            .set('token', token));
         expect(tmpRes.status).toBe(500);
 
         // Check if the post is in the database
