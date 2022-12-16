@@ -85,10 +85,6 @@ describe('Test the like endpoints', () => {
         }
     });
 
-    test('POST /api/like/ - like a post', async () => {
-
-        console.log(token);
-    });
 
     // Test /like endpoint
     test('Test /like endpoint', async () => {
