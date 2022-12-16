@@ -25,7 +25,7 @@ describe('Test the follow endpoints', () => {
         } catch (err) {
 
         }
-    });
+    }, 10000);
 
     afterAll(async () => {
         try {
@@ -33,7 +33,7 @@ describe('Test the follow endpoints', () => {
         } catch (err) {
 
         }
-    });
+    }, 10000);
 
     beforeEach(async () => {
         try {
@@ -75,18 +75,13 @@ describe('Test the follow endpoints', () => {
             .set('Accept', 'application/json');
 
         token2 = resp2.body.data.token;
-    });
+    }, 30000);
 
     afterEach(async () => {
         // delete the two users
         await db.collection('user').deleteMany({});
         await db.collection('follow').deleteMany({});
-    });
-
-    test('Test /follow endpoint', async () => {
-        console.log(token);
-        console.log(token2);
-    });
+    }, 10000);
 
     // Test follow endpoint
     test('POST /follow/follow', async () => {
@@ -126,7 +121,7 @@ describe('Test the follow endpoints', () => {
         // Delete the follow
         await db.collection('follow').findOneAndDelete({following: "testUser2", follower: "testUser1"});
 
-    });
+    }, 10000);
 
     // Test unfollow endpoint
     test('POST /follow/unfollow', async () => {
@@ -175,7 +170,7 @@ describe('Test the follow endpoints', () => {
         const unfollowRes = await db.collection('follow').findOne({following: "testUser2", follower: "testUser1"});
         expect(unfollowRes).toBeNull();
 
-    });
+    }, 30000);
 
     // Test /follow/follower-names/:username endpoint
     test('GET /follow/follower-names/:username', async () => {
@@ -228,7 +223,7 @@ describe('Test the follow endpoints', () => {
         const unfollowRes = await db.collection('follow').findOne({following: "testUser2", follower: "testUser1"});
         expect(unfollowRes).toBeNull();
 
-    });
+    }, 50000);
 
     // Test /follow/following-count/:username endpoint and /follow/follower-count/:username endpoint
     test('GET /follow/following-count/:username and GET /follow/follower-count/:username', async () => {
@@ -367,7 +362,7 @@ describe('Test the follow endpoints', () => {
         // Type check
         expect(followerCountResp6.status).toEqual(404);
 
-    });
+    }, 10000);
 
     // Test /is-following/:followerUsername/:followingUsername endpoint
     test('Test /is-following/:followerUsername/:followingUsername endpoint', async () => {
@@ -412,9 +407,7 @@ describe('Test the follow endpoints', () => {
             .set('token', token));
         // Type check
         expect(isFollowingResp4.status).toEqual(404);
-
-
-    });
+    }, 10000);
 
     // Test /follow/suggestions/:username endpoint
     test('Test /follow/suggestions/:username endpoint', async () => {

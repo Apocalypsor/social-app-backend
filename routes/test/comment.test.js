@@ -54,7 +54,7 @@ describe("Test the comment endpoints", () => {
         } catch (err) {
 
         }
-    });
+    }, 10000);
 
     afterAll(async () => {
         try {
@@ -62,7 +62,7 @@ describe("Test the comment endpoints", () => {
         } catch (err) {
 
         }
-    });
+    }, 10000);
 
     beforeEach(async () => {
         try {
@@ -119,7 +119,7 @@ describe("Test the comment endpoints", () => {
             .set('token', token2));
         commentId = commentResp._body.data._id.toString();
 
-    });
+    }, 10000);
 
     afterEach(async () => {
         // Delete the post
@@ -128,7 +128,7 @@ describe("Test the comment endpoints", () => {
         await db.collection('user').deleteMany({});
         // Delete the comment
         await db.collection('comment').deleteMany({});
-    });
+    }, 10000);
 
 
     // Test the POST /api/comment endpoint
@@ -164,7 +164,7 @@ describe("Test the comment endpoints", () => {
         expect(missingUsername.status).toBe(500);
 
 
-    });
+    }, 10000);
 
     test("Test POST /api/comment/post", async () => {
 
@@ -191,7 +191,7 @@ describe("Test the comment endpoints", () => {
         // Test missing postId or username
 
 
-    });
+    }, 50000);
 
 
     test("Test DELETE /api/comment/", async () => {
@@ -216,7 +216,7 @@ describe("Test the comment endpoints", () => {
         // Type and status check
         expect(res2.status).toBe(500);
 
-    });
+    }, 10000);
 
 
 });

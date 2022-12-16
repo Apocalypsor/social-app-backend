@@ -64,8 +64,6 @@ router.post('/register', async (req, res, next) => {
         if (!validator.isEmail(req.body.email)) next(new UserFailedToUpdateError("Invalid email"));
         const results = await dbLib.addObject(db, 'user', req.body);
 
-        console.log("results", JSON.stringify(results));
-
         // token
         // Create token and send it to client
         const token = jwt.sign({
