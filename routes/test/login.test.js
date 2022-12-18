@@ -20,14 +20,14 @@ describe("Test the login endpoints", () => {
         } catch (err) {
 
         }
-    });
+    }, 10000);
     afterAll(async () => {
         try {
             await dbLib.close();
         } catch (err) {
 
         }
-    });
+    }, 10000);
 
     beforeEach(async () => {
         try {
@@ -54,11 +54,11 @@ describe("Test the login endpoints", () => {
         // check database
         const user1Db = await dbLib.getObjectByFilter(db, 'user', {username: user1.username});
         expect(user1Db).not.toBeNull();
-    });
+    }, 10000);
 
     afterEach(async () => {
         await db.collection('user').deleteMany({});
-    });
+    }, 10000);
 
     test("Test /login endpoint", async () => {
         const loginInfo = {
@@ -70,8 +70,6 @@ describe("Test the login endpoints", () => {
             .send(loginInfo)
             .set('Accept', 'application/json');
 
-        // console.log(resp._body);
-
         // type check
         expect(resp.status).toBe(200);
 
@@ -79,8 +77,6 @@ describe("Test the login endpoints", () => {
         expect(resp.body.success).toBe(true);
         expect(resp.body.data.profilePicture).toBe("https://ui-avatars.com/api/?rounded=true");
 
-        // console.log(resp._body.data.token);
-        // console.log(jwtSecret);
         jwt.verify(resp._body.data.token, jwtSecret);
-    });
+    }, 10000);
 });

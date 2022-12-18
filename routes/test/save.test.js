@@ -36,7 +36,7 @@ describe('TEST save endpoints', () => {
         formDataMany.append('file[]', fs.createReadStream(sourcePath + 'testFile2.jpg'));
 
         formDataOne.append('file', fs.createReadStream(sourcePath + 'testFile1.jpg'));
-    })
+    }, 10000);
 
     afterEach(async () => {
         await fs.unlink(sourcePath + 'testFile1.jpg', (err) => {
@@ -48,7 +48,7 @@ describe('TEST save endpoints', () => {
         if (fs.existsSync(sourcePath)) {
             fs.rmSync(sourcePath, {recursive: true, force: true});
         }
-    });
+    }, 10000);
 
     // Test POST /save/one endpoint
     test('Test POST /save/one endpoint', async () => {
@@ -60,7 +60,7 @@ describe('TEST save endpoints', () => {
         expect(res.status).toBe(403);
         expect(res._body.success).toBe(false);
         expect(res._body.message).toBe("No token provided.");
-    });
+    }, 10000);
 
     test('Test POST /save/multiple endpoint', async () => {
         const res = await request(webapp)
@@ -71,7 +71,7 @@ describe('TEST save endpoints', () => {
         expect(res.status).toBe(403);
         expect(res._body.success).toBe(false);
         expect(res._body.message).toBe("No token provided.");
-    });
+    }, 10000);
 
 
 });

@@ -29,7 +29,7 @@ describe('Test the post endpoints', () => {
         } catch (err) {
 
         }
-    });
+    }, 10000);
 
     afterAll(async () => {
         try {
@@ -37,16 +37,9 @@ describe('Test the post endpoints', () => {
         } catch (err) {
 
         }
-    });
+    }, 10000);
 
     beforeEach(async () => {
-        try {
-            await db.admin().ping();
-        } catch (err) {
-            await dbLib.connect('test');
-            db = await dbLib.getDb();
-        }
-
         const user = {
             username: "demo",
             password: "password",
@@ -66,8 +59,6 @@ describe('Test the post endpoints', () => {
 
         token = loginResp._body.data.token;
 
-        console.log(loginResp._body);
-
         res = (await request(webapp)
             .post(endpoint)
             .send(expectedPost)
@@ -81,7 +72,7 @@ describe('Test the post endpoints', () => {
         } else {
 
         }
-    });
+    }, 10000);
 
     afterEach(async () => {
         try {
@@ -90,11 +81,7 @@ describe('Test the post endpoints', () => {
         } catch (err) {
 
         }
-    });
-
-    test('testBefore', async () => {
-        console.log(token);
-    });
+    }, 10000);
 
     // Test the GET /post/:id endpoint
     test('GET /post/:id', async () => {
@@ -119,7 +106,7 @@ describe('Test the post endpoints', () => {
             .set('token', token));
         expect(tmpRes.status).toBe(404);
 
-    });
+    }, 10000);
 
     // Test GET /post/username/:username
     test('GET /post/username/:username', async () => {
@@ -136,7 +123,7 @@ describe('Test the post endpoints', () => {
         expect(res._body.success).toBe(true);
         expect(res._body.data[0]).toMatchObject(expectedPost);
 
-    });
+    }, 10000);
 
     // Test GET /post/page/:page endpoint
     test('GET /post/page/:page', async () => {
@@ -188,7 +175,7 @@ describe('Test the post endpoints', () => {
         expect(getRes._body.data[0]).toMatchObject(secondObj);
 
 
-    });
+    }, 10000);
 
     // Test POST /post endpoint
     test('POST /post', async () => {
@@ -213,7 +200,7 @@ describe('Test the post endpoints', () => {
         // Missing post Body
         expect(tmpRes.status).toBe(500);
         expect(tmpRes._body.success).toBe(false);
-    });
+    }, 30000);
 
     //Test PUT /post/:id endpoint
     test('PUT /post/:id', async () => {
@@ -226,8 +213,6 @@ describe('Test the post endpoints', () => {
             .send(updateObj)
             .set('Accept', 'application/json')
             .set('token', token));
-
-        // console.log(putRes._body);
 
         // Type and status checking
         expect(putRes.status).toBe(200);
@@ -272,7 +257,7 @@ describe('Test the post endpoints', () => {
             .set('Accept', 'application/json')
             .set('token', token));
         expect(tmpRes2.status).toBe(500);
-    });
+    }, 10000);
 
     // Test DELETE /post/:id endpoint
     test('DELETE /post/:id', async () => {
@@ -301,7 +286,7 @@ describe('Test the post endpoints', () => {
         const dbRes = await db.collection('post').findOne({_id: ObjectId(postId)});
         expect(dbRes).toBe(null);
 
-    });
+    }, 10000);
 
 
 });

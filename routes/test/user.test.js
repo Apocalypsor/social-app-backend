@@ -45,9 +45,7 @@ describe("Test user endpoints", () => {
                     profilePicture: "https://ui-avatars.com/api/?rounded=true"
                 })
                 .set('Accept', 'application/json'));
-            // res = JSON.parse(res.text);
 
-            // console.log(res.body);
             token = res.body.data.token;
 
             actualUser = await db.collection('user').findOne({username: res.body.data.username});
@@ -62,7 +60,7 @@ describe("Test user endpoints", () => {
         } catch (err) {
 
         }
-    });
+    }, 10000);
 
     afterAll(async () => {
         try {
@@ -71,16 +69,7 @@ describe("Test user endpoints", () => {
         } catch (err) {
 
         }
-    });
-
-    beforeEach(async () => {
-        try {
-            await db.admin().ping();
-        } catch (err) {
-            await dbLib.connect('test');
-            db = await dbLib.getDb();
-        }
-    });
+    }, 10000);
 
     const clearDatabase = async () => {
         try {
@@ -118,7 +107,7 @@ describe("Test user endpoints", () => {
             .set('Accept', 'application/json')
             .set('token', token);
         expect(tmpRes.status).toEqual(404);
-    });
+    }, 10000);
 
 
     // Test GET /user/search/:username endpoint
@@ -139,7 +128,7 @@ describe("Test user endpoints", () => {
             .set('Accept', 'application/json')
             .set('token', token);
         expect(tmpRes.status).toEqual(404);
-    });
+    }, 10000);
 
     // Test user in the database
     test("Test user in the database", async () => {
@@ -147,7 +136,7 @@ describe("Test user endpoints", () => {
             username: expectedUser.username,
             profilePicture: 'https://ui-avatars.com/api/?rounded=true'
         });
-    });
+    }, 10000);
 
 
     // Test PUT /user/:username endpoint
@@ -237,7 +226,7 @@ describe("Test user endpoints", () => {
         // Delete the user
         const deleteUser = await db.collection('user').deleteOne({username: `${putDeleteUsername}`});
         expect(deleteUser.deletedCount).toBe(1);
-    });
+    }, 10000);
 
     // Test DELETE /user/:username endpoint
     test("DELETE /user/:username", async () => {
@@ -284,5 +273,5 @@ describe("Test user endpoints", () => {
         // Check if the user is deleted from the database
         const deletedUser = await db.collection('user').findOne({username: `${putDeleteUsername}`});
         expect(deletedUser).toBeNull();
-    });
+    }, 10000);
 })

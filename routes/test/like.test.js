@@ -19,7 +19,7 @@ describe('Test the like endpoints', () => {
         } catch (err) {
 
         }
-    });
+    }, 10000);
 
     afterAll(async () => {
         try {
@@ -27,7 +27,7 @@ describe('Test the like endpoints', () => {
         } catch (err) {
 
         }
-    });
+    }, 10000);
 
     beforeEach(async () => {
         try {
@@ -73,7 +73,7 @@ describe('Test the like endpoints', () => {
             .set('Accept', 'application/json');
         token = resp._body.data.token;
 
-    });
+    }, 10000);
 
     afterEach(async () => {
         try {
@@ -83,8 +83,7 @@ describe('Test the like endpoints', () => {
         } catch (err) {
 
         }
-    });
-
+    }, 10000);
 
     // Test /like endpoint
     test('Test /like endpoint', async () => {
@@ -134,7 +133,7 @@ describe('Test the like endpoints', () => {
 
         // Check the response body
         expect(likeResp3._body.success).toBe(false);
-    });
+    }, 10000);
 
     // Test /unlike endpoint
     test('Test /unlike endpoint', async () => {
@@ -185,7 +184,7 @@ describe('Test the like endpoints', () => {
         // Check the status
         expect(unlikeResp3._body.success).toBe(false);
 
-    });
+    }, 10000);
 
     // Test /is-like/:likeUsername/:postId endpoint
     test('Test /is-like/:likeUsername/:postId endpoint', async () => {
@@ -243,7 +242,7 @@ describe('Test the like endpoints', () => {
             .set('token', token);
         // Check the status
         expect(isLikeResp4.status).toBe(404);
-    });
+    }, 30000);
 
     // Test /count-like/:postId endpoint
     test('Test /count/:postId endpoint', async () => {
@@ -267,7 +266,7 @@ describe('Test the like endpoints', () => {
         expect(countLikeResp._body.success).toBe(true);
         expect(countLikeResp._body.data).toBe(1);
 
-    });
+    }, 10000);
 
 
 });
