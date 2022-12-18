@@ -131,7 +131,7 @@ async function main() {
     await generateFollowingRelationship();
     await generateLikeRelationship();
 
-    await db.collection('user').createIndex({email: 1, username: 1}, {unique: true});
+    await db.collection('user').createIndex({username: 1}, {unique: true});
 
     await con.close();
 
