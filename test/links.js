@@ -1,3 +1,5 @@
+const imagesSet = new Set();
+
 const images = [
     "https://images.unsplash.com/photo-1521398967861-bb2861b48903?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY2NTc3OTUzMA&ixlib=rb-1.2.1&q=80&w=1080",
     "https://images.unsplash.com/photo-1571199865319-66870d7dcb5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY2NTc3ODgwMg&ixlib=rb-1.2.1&q=80&w=1080",
@@ -999,7 +1001,15 @@ const images = [
     "https://images.unsplash.com/photo-1665659631476-3300a6a5abc7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY2NTc3OTA0Mw&ixlib=rb-1.2.1&q=80&w=1080",
     "https://images.unsplash.com/photo-1665661386411-4520ac7c3d00?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY2NTc3ODg4Mg&ixlib=rb-1.2.1&q=80&w=1080",
     "https://images.unsplash.com/photo-1665661386411-4520ac7c3d00?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY2NTc3OTQzMw&ixlib=rb-1.2.1&q=80&w=1080"
-]
+].filter((url) => {
+    const pre = url.split("?")[0];
+    if (imagesSet.has(pre)) {
+        return false;
+    } else {
+        imagesSet.add(pre);
+        return true;
+    }
+})
 
 const comments = [
     "My jaw dropped 😯",
