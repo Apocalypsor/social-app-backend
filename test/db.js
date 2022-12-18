@@ -1,9 +1,9 @@
 const {MongoClient} = require('mongodb');
 const faker = require('@faker-js/faker').faker;
-const fs = require('fs');
-const {addObjects} = require("../db/dbFunction");
-const images = fs.readFileSync('image_urls.txt', 'utf-8').split(/\r?\n/);
-const comments = fs.readFileSync('comments.txt', 'utf-8').split(/\r?\n/);
+const {addObjects} = require('../db/dbFunction');
+
+const images = require('./links').images;
+const comments = require('./links').comments;
 
 require('dotenv').config();
 
@@ -14,18 +14,20 @@ let followMap = [];
 let likeMap = [];
 let db;
 
-const getRandomArray = (array) => {
+let imgIndex = 0;
+
+const getRandomFormArray = (array) => {
     return array[Math.floor(Math.random() * array.length)];
 }
 
 const getAllComments = async (posts) => {
-    let commentsInPost = [];
+    const commentsInPost = [];
     for (let i = 0; i < posts.length * (Math.floor(Math.random() * 5) + 5); i++) {
-        let luckyPost = getRandomArray(posts);
-        let comment = {
-            username: getRandomArray(allUsernames),
+        const luckyPost = getRandomFormArray(posts);
+        const comment = {
+            username: getRandomFormArray(allUsernames),
             postId: luckyPost._id,
-            message: getRandomArray(comments),
+            message: getRandomFormArray(comments),
             mention: null
         };
 
@@ -36,19 +38,19 @@ const getAllComments = async (posts) => {
 }
 
 const getAllPosts = async (users) => {
-    let posts = [];
+    const posts = [];
     for (let i = 0; i < users.length * (Math.floor(Math.random() * 10) + 5); i++) {
-        let luckyUser = getRandomArray(users);
-        let post = {
+        const luckyUser = getRandomFormArray(users);
+        posts.push({
             username: luckyUser.username,
             postType: 0,
-            postContent: getRandomArray(images),
+            postContent: images[imgIndex++],
             description: faker.lorem.sentence(),
             public: true,
             tagging: [],
-        };
-        posts.push(post);
+        });
     }
+
     return await addObjects(db, "post", posts);
 }
 
@@ -62,7 +64,7 @@ const getUser = async (n) => {
         profilePicture: "https://ui-avatars.com/api/?rounded=true",
     }
 
-    let users = [user];
+    const users = [user];
     allUsernames.push(user.username);
 
     for (let i = 0; i < n - 1; i++) {
@@ -93,7 +95,7 @@ const generateLikeRelationship = async () => {
         }
     }
 
-    await db.collection("like").insertMany(likeMap);
+    return await addObjects(db, 'like', likeMap);
 }
 
 const generateFollowingRelationship = async () => {
@@ -106,7 +108,7 @@ const generateFollowingRelationship = async () => {
         }
     }
 
-    await db.collection("follow").insertMany(followMap);
+    return await addObjects(db, 'follow', followMap);
 }
 
 async function main() {
@@ -115,14 +117,14 @@ async function main() {
         {useNewUrlParser: true, useUnifiedTopology: true},
     ));
 
-    db = con.db('toktik-dev');
+    db = con.db(process.env.DB_NAME);
     let allCollections = await db.listCollections().toArray();
 
     for (let collection of allCollections) {
         await db.dropCollection(collection.name);
     }
 
-    allUsers = await getUser(15);
+    allUsers = await getUser(30);
     allPosts = await getAllPosts(allUsers);
     await getAllComments(allPosts);
 
@@ -132,6 +134,8 @@ async function main() {
     await db.collection('user').createIndex({email: 1, username: 1}, {unique: true});
 
     await con.close();
+
+    console.log(imgIndex);
 }
 
 main().then(() => console.log("done"));
