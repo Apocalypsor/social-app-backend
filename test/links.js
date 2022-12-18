@@ -1,6 +1,8 @@
+const shuffle = require('shuffle-array');
+
 const imagesSet = new Set();
 
-const images = [
+const images = shuffle([
     "https://images.unsplash.com/photo-1521398967861-bb2861b48903?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY2NTc3OTUzMA&ixlib=rb-1.2.1&q=80&w=1080",
     "https://images.unsplash.com/photo-1571199865319-66870d7dcb5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY2NTc3ODgwMg&ixlib=rb-1.2.1&q=80&w=1080",
     "https://images.unsplash.com/photo-1620298106068-62c6a8bd05cc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8fHx8fHx8MTY2NTc3ODc3Mg&ixlib=rb-1.2.1&q=80&w=1080",
@@ -1009,7 +1011,7 @@ const images = [
         imagesSet.add(pre);
         return true;
     }
-})
+}), {copy: true});
 
 const comments = [
     "My jaw dropped 😯",
@@ -1150,7 +1152,7 @@ const comments = [
     "What a babe ❤️",
     "You are so adorbs!",
     "This is magical! ✨"
-]
+];
 
 module.exports = {
     images,
