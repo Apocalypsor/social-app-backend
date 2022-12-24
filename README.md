@@ -1,8 +1,6 @@
-# TokTik
+# TokTik Back End
 
-## Backend
-
-### 0. Install Deps
+## 1. Install Deps
 ```bash
 npm install
 ```
@@ -16,30 +14,9 @@ DB_URL=MONGO_DB_URL_PROVIDED_IN_FORM
 
 Remember to replace `MONGO_DB_URL_PROVIDED_IN_FORM` with the link we provided.
 
-Note that we are saving all media files locally.
-
-### 1. Start
+## 2. Start
 ```bash
 npm start
-```
-
-## Frontend
-
-**Use the `dev` branch from the frontend repo!**
-
-```bash
-git clone https://github.com/cis557/project---frontend-group-x frontend
-cd frontend && git checkout dev
-npm install
-npm start
-```
-
-**Do not start the mock API servers!**
-
-Default User:
-```
-username: demo
-password: 123456
 ```
 
 ## Test
